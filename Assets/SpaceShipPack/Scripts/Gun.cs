@@ -5,17 +5,7 @@ using UnityEngine;
 
 public class Gun : MonoBehaviour
 {
-
-    [SerializeField] private Transform pfBullet;
-
-    void Start()
-    {
-        // adding onShoot to shipController's onShoot event
-        ShipController shipcontroller = transform.parent.parent.GetComponent<ShipController>();
-        shipcontroller.Shoot += OnShoot;
-    }
-
-    private void OnShoot(object sender, ShipController.ShootArgs e)
+    public void Shoot(Transform pfBullet)
     {
         // Get position from where we want to shoot
         var bulletOutPosition = transform.Find("bulletOut").transform.position;
@@ -23,8 +13,17 @@ public class Gun : MonoBehaviour
         Transform bulletTransform = Instantiate(pfBullet, bulletOutPosition, Quaternion.identity);
 
         // Init Bullet's script
-        //bulletTransform.GetComponent<Bullet>().Setup(e.shootDir);
-        bulletTransform.GetComponent<Bullet>().Setup(transform.forward);
+        Bullet bulletController = bulletTransform.GetComponent<Bullet>();
+        if (bulletController != null)
+        {
+            bulletController.Setup(transform.forward);
+        }
+
+        Rocket rocketController = bulletTransform.GetComponent<Rocket>();
+        if (rocketController != null)
+        {
+            rocketController.Setup(transform.forward);
+        }
 
     }
 }
