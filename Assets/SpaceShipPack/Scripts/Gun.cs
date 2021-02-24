@@ -11,7 +11,7 @@ public class Gun : MonoBehaviour
     void Start()
     {
         // adding onShoot to shipController's onShoot event
-        ShipController shipcontroller = transform.parent.GetComponent<ShipController>();
+        ShipController shipcontroller = transform.parent.parent.GetComponent<ShipController>();
         shipcontroller.Shoot += OnShoot;
     }
 
@@ -21,8 +21,10 @@ public class Gun : MonoBehaviour
         var bulletOutPosition = transform.Find("bulletOut").transform.position;
         // Shoot
         Transform bulletTransform = Instantiate(pfBullet, bulletOutPosition, Quaternion.identity);
+
         // Init Bullet's script
-        bulletTransform.GetComponent<Bullet>().Setup(e.shootDir);
-        
+        //bulletTransform.GetComponent<Bullet>().Setup(e.shootDir);
+        bulletTransform.GetComponent<Bullet>().Setup(transform.forward);
+
     }
 }
