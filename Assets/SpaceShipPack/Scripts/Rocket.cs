@@ -11,26 +11,38 @@ public class Rocket : MonoBehaviour
     public void Setup(Vector3 shootDir)
     {
         this.shootDir = shootDir;
-
-        //Destroy(gameObject, 15f);
     }
     Transform GetClosestEnemy(GameObject[] enemies)
     {
+		// TODO: rather get Transform[] than GameObject[]
+		
+		// create bestTarget
         Transform bestTarget = null;
+		
+		// create closest distance and set it to infinity
         float closestDistanceSqr = Mathf.Infinity;
+		
+		// get currentPosition
         Vector3 currentPosition = transform.position;
+		
+		// go through each given target
         foreach (GameObject potentialT in enemies)
         {
+			// get target's transform
             Transform potentialTarget = potentialT.transform;
+			// calculate vector towards target
             Vector3 directionToTarget = potentialTarget.position - currentPosition;
+			// getting magnitude of distance (avoiding square root calculation with sqrMagnitude)
             float dSqrToTarget = directionToTarget.sqrMagnitude;
+			// if current target is closer than the current closest one
             if (dSqrToTarget < closestDistanceSqr)
             {
+				// save this target's distance as closest
                 closestDistanceSqr = dSqrToTarget;
+				// save this target as the bestTarget
                 bestTarget = potentialTarget;
             }
         }
-
         return bestTarget;
     }
 
@@ -42,9 +54,9 @@ public class Rocket : MonoBehaviour
         // Find nearest one
         Transform target = GetClosestEnemy(enemies);
 
-        // If there is a target move towards it, else self-destruct with delay
         if (target != null)
         {
+			// TODO: Rather use rigidbody.addForce?
             // Move towards target
             float step = moveSpeed * Time.deltaTime; // calculate distance to move
             transform.position = Vector3.MoveTowards(transform.position, target.position, step);

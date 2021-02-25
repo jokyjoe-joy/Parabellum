@@ -64,6 +64,7 @@ public class ShipController : MonoBehaviour
     private void AdjustFOVOnSpeed()
     {
         // Dynamic field of view based on speed
+		// TODO: use sqrMagnitude?
         if (ship.currentVelocity.magnitude > 10)
         {
             currentFOV = defaultFOV + ship.currentVelocity.magnitude / 10;

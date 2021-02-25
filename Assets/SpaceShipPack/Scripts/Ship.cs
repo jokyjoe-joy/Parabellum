@@ -23,6 +23,7 @@ public class Ship : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+		// TODO: put it in FixedUpdate
         currentVelocity = rigidbody.velocity;
     }
 
