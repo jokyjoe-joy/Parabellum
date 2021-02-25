@@ -6,18 +6,27 @@ using UnityEngine;
 public class Gun : MonoBehaviour
 {
     public int reloadTime = 5;
-    public bool isLoaded = true;
-    public bool isLoading = false;
+    public bool isGunLoaded = true;
+    public bool isGunLoading = false;
+    public GameObject shootingVFX;
+    public float shootingVFXScale = 1;
 
     public void Shoot(Transform pfBullet)
     {
         // Only shoot if gun is loaded
-        if (isLoaded) {
-            // Get position from where we want to shoot
+        if (isGunLoaded) {
+            // Shooting out bullet, then "deloading" Gun
             var bulletOutPosition = transform.Find("bulletOut").transform.position;
-            // Shoot
             Transform bulletTransform = Instantiate(pfBullet, bulletOutPosition, Quaternion.identity);
-            isLoaded = false;
+            isGunLoaded = false;
+
+            // Creating VFX
+            if (shootingVFX != null) {
+                GameObject explosion = Instantiate(shootingVFX, bulletOutPosition, Quaternion.identity);
+                explosion.transform.parent = transform;
+                explosion.transform.localScale *= shootingVFXScale;
+                Destroy(explosion, 2f);
+            }
 
             // Init Bullet's script
             Bullet bulletController = bulletTransform.GetComponent<Bullet>();
@@ -31,18 +40,15 @@ public class Gun : MonoBehaviour
             {
                 rocketController.Setup(transform.forward);
             }
-        // Only load gun if not loading already
-        } else if (!isLoading) {
-            StartCoroutine(Reload());
         }
-
-
     }
 
-    IEnumerator Reload() {
-        isLoading = true;
-        yield return new WaitForSeconds(reloadTime);
-        isLoaded = true;
-        isLoading = false;
+    public IEnumerator Reload() {
+        if (!isGunLoading) {
+            isGunLoading = true;
+            yield return new WaitForSeconds(reloadTime);
+            isGunLoaded = true;
+            isGunLoading = false;
+        }
     }
 }

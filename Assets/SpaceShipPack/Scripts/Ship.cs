@@ -9,6 +9,10 @@ public class Ship : MonoBehaviour
     public float RotationSpeed = 5f;
     public float TurnSpeed = 10f;
     public float MaxSpeed = 100f;
+    public GameObject explosionVFX;
+    public float explosionPower = 100;
+    public float explosionRadius = 20;
+    public float explosionScale = 1;
 
     [HideInInspector] public Vector3 currentVelocity;
     [HideInInspector] public int HEALTH = 100;
@@ -65,8 +69,47 @@ public class Ship : MonoBehaviour
         Debug.Log(HEALTH);
         if (HEALTH <= 0)
         {
-            Destroy(gameObject);
+            Explode();
         }
+    }
+
+    private void Explode() {
+        /* 
+        Checking nearby colliders and adding explosion force to their rigidbodies (if they have)
+        Also adding rigidbodies to children and then explosion force to them
+        Renaming children to SCRAPE, then detaching them, then destroying gameObject
+        */
+        Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
+
+        GameObject explosion = Instantiate(explosionVFX, transform.position, Quaternion.identity);
+        explosion.transform.localScale = transform.localScale * explosionScale;
+        Destroy(explosion, 2f);
+
+        foreach(Transform child in transform) {
+            Rigidbody rb = child.gameObject.AddComponent<Rigidbody>();
+            rb.useGravity = false;
+            child.gameObject.name = "SCRAP";
+        }
+
+        explosionRadius *= transform.localScale.x;
+
+        foreach (Collider hit in colliders) {
+            Rigidbody rb = hit.GetComponent<Rigidbody>();
+
+            if (rb != null) {
+                rb.AddExplosionForce(explosionPower, transform.position, explosionRadius, 0);
+            }
+        }
+
+        // Destroy attached tags if there are any.
+        foreach(Transform child in transform) {
+            if (child.gameObject.CompareTag("Enemy")) {
+                Destroy(child.gameObject);
+            }
+        }
+
+        transform.DetachChildren();
+        Destroy(gameObject);
     }
 
 }

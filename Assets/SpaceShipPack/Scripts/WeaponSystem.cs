@@ -16,15 +16,13 @@ public class WeaponSystem : MonoBehaviour
         shipcontroller.Shoot += OnShoot;
     }
 
-    
-    void Update()
-    {
-        
-    }
 
     private void OnShoot(object sender, ShipController.ShootArgs e)
-    {
-        Gun1.Shoot(Bullet1);
-        Gun2.Shoot(Bullet2);
+    {   
+        // Shooting, then reloading
+        if (Gun1 != null) {Gun1.Shoot(Bullet1);}
+        if (Gun2 != null) {Gun2.Shoot(Bullet2);}
+        if (Gun1 != null) {StartCoroutine(Gun1.Reload());}
+        if (Gun2 != null) {StartCoroutine(Gun2.Reload());}
     }
 }
