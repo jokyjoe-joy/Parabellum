@@ -7,17 +7,16 @@ public class Rocket : MonoBehaviour
     public float moveSpeed = 100f;
     public int DamageAmount = 10;
     private Vector3 shootDir;
-
+    private new Rigidbody rigidbody;
     public void Setup(Vector3 shootDir)
     {
         this.shootDir = shootDir;
+        rigidbody = GetComponent<Rigidbody>();
     }
-    Transform GetClosestEnemy(GameObject[] enemies)
+    GameObject GetClosestEnemy(GameObject[] enemies)
     {
-		// TODO: rather get Transform[] than GameObject[]
-		
 		// create bestTarget
-        Transform bestTarget = null;
+        GameObject bestTarget = null;
 		
 		// create closest distance and set it to infinity
         float closestDistanceSqr = Mathf.Infinity;
@@ -26,12 +25,10 @@ public class Rocket : MonoBehaviour
         Vector3 currentPosition = transform.position;
 		
 		// go through each given target
-        foreach (GameObject potentialT in enemies)
+        foreach (GameObject potentialTarget in enemies)
         {
-			// get target's transform
-            Transform potentialTarget = potentialT.transform;
 			// calculate vector towards target
-            Vector3 directionToTarget = potentialTarget.position - currentPosition;
+            Vector3 directionToTarget = potentialTarget.transform.position - currentPosition;
 			// getting magnitude of distance (avoiding square root calculation with sqrMagnitude)
             float dSqrToTarget = directionToTarget.sqrMagnitude;
 			// if current target is closer than the current closest one
@@ -52,14 +49,12 @@ public class Rocket : MonoBehaviour
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         
         // Find nearest one
-        Transform target = GetClosestEnemy(enemies);
+        GameObject target = GetClosestEnemy(enemies);
 
         if (target != null)
         {
-			// TODO: Rather use rigidbody.addForce?
-            // Move towards target
-            float step = moveSpeed * Time.deltaTime; // calculate distance to move
-            transform.position = Vector3.MoveTowards(transform.position, target.position, step);
+            Vector3 vector = target.transform.position - transform.position;
+            rigidbody.AddForce(vector * Time.deltaTime * moveSpeed);
         } 
         else 
         {

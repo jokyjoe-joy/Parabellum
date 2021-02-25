@@ -20,10 +20,7 @@ public class Ship : MonoBehaviour
         rigidbody = GetComponent<Rigidbody>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-		// TODO: put it in FixedUpdate
+    private void FixedUpdate() {
         currentVelocity = rigidbody.velocity;
     }
 
@@ -58,7 +55,7 @@ public class Ship : MonoBehaviour
 
     public void Stabilise(float speed)
     {
-        rigidbody.AddForce(-currentVelocity * forwardSpeed * 10 * Time.deltaTime);
+        rigidbody.AddForce(-rigidbody.velocity * forwardSpeed * 10 * Time.deltaTime);
         rigidbody.AddTorque(-rigidbody.angularVelocity.normalized * 200 * RotationSpeed * Time.deltaTime);
     }
 

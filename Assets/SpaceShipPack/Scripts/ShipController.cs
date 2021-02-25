@@ -23,15 +23,17 @@ public class ShipController : MonoBehaviour
 
     void Update()
     {
-        CheckMovementControls();
-        AdjustFOVOnSpeed();
-
         // Create Shoot event on Left Click
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 shootDir = transform.forward;
             Shoot?.Invoke(this, new ShootArgs { shootDir = shootDir });
         }
+    }
+
+    private void FixedUpdate() {
+        CheckMovementControls();
+        AdjustFOVOnSpeed();
     }
 
     private void CheckMovementControls()
@@ -64,7 +66,6 @@ public class ShipController : MonoBehaviour
     private void AdjustFOVOnSpeed()
     {
         // Dynamic field of view based on speed
-		// TODO: use sqrMagnitude?
         if (ship.currentVelocity.magnitude > 10)
         {
             currentFOV = defaultFOV + ship.currentVelocity.magnitude / 10;
