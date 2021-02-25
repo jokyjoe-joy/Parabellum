@@ -13,15 +13,17 @@ public class Rocket : MonoBehaviour
     // TODO: Rocket having a range, or maybe the gun?
     private Vector3 shootDir;
     private new Rigidbody rigidbody;
+    private bool isLookingForEnemy = true;
 
 
     private void Awake() {
         rigidbody = GetComponent<Rigidbody>();
     }
 
-    public void Setup(Vector3 shootDir)
+    public void Setup(Vector3 shootDir, bool isLookingForEnemy = true)
     {
         this.shootDir = shootDir;
+        this.isLookingForEnemy = isLookingForEnemy;
         // TODO: Rocket should start with the same velocity as the ship
         // because the other way it hits the shooter ship if it is moving
         //rigidbody.AddForce(transform.forward * Time.deltaTime * 100);
@@ -60,9 +62,13 @@ public class Rocket : MonoBehaviour
 
     private void FixedUpdate()
     {
+        GameObject[] enemies;
         // Check enemies nearby
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        
+        if (this.isLookingForEnemy) {
+            enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        } else {
+            enemies = GameObject.FindGameObjectsWithTag("PlayerTag");
+        }
         // Find nearest one
         GameObject target = GetClosestEnemy(enemies);
 

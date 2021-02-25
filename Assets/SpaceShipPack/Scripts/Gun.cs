@@ -11,7 +11,7 @@ public class Gun : MonoBehaviour
     public GameObject shootingVFX;
     public float shootingVFXScale = 1;
 
-    public void Shoot(Transform pfBullet)
+    public void Shoot(Transform pfBullet, bool isLookingForEnemy=true)
     {
         // Only shoot if gun is loaded
         if (isGunLoaded) {
@@ -38,7 +38,7 @@ public class Gun : MonoBehaviour
             Rocket rocketController = bulletTransform.GetComponent<Rocket>();
             if (rocketController != null)
             {
-                rocketController.Setup(transform.forward);
+                rocketController.Setup(transform.forward, isLookingForEnemy);
             }
         }
     }

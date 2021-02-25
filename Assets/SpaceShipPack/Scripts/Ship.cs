@@ -16,7 +16,7 @@ public class Ship : MonoBehaviour
 
     [HideInInspector] public Vector3 currentVelocity;
     [HideInInspector] public int HEALTH = 100;
-    private new Rigidbody rigidbody;
+    [HideInInspector] public new Rigidbody rigidbody; // FIXME: shouldn't be public later on!
 
     // Start is called before the first frame update
     void Start()
@@ -28,39 +28,39 @@ public class Ship : MonoBehaviour
         currentVelocity = rigidbody.velocity;
     }
 
-    public void ThrustForward(float speed)
+    public void ThrustForward()
     {
         if (currentVelocity.magnitude < MaxSpeed) {
-            rigidbody.AddForce(transform.forward * forwardSpeed * 100 * Time.deltaTime * speed);
+            rigidbody.AddForce(transform.forward * forwardSpeed * 100 * Time.deltaTime);
         }
 
     }
 
-    public void ThrustBackwards(float speed)
+    public void ThrustBackwards()
     {
-        rigidbody.AddForce(-transform.forward * backwardSpeed * 100 * Time.deltaTime * speed);
+        rigidbody.AddForce(-transform.forward * backwardSpeed * 100 * Time.deltaTime );
     }
 
-    public void TurnLeft(float speed)
+    public void LookUpDown(float speed)
     {
         rigidbody.AddRelativeTorque(speed * TurnSpeed * 50 * Time.deltaTime, 0, 0);
     }
 
-    public void TurnRight(float speed)
+    public void LookLeftRight(float speed)
     {
         rigidbody.AddRelativeTorque(0, speed * TurnSpeed * 50 * Time.deltaTime, 0);
     }
 
-    public void RollLeft(float speed)
+    public void RollLeft()
     {
-        rigidbody.AddRelativeTorque(0, 0, RotationSpeed * speed * Time.deltaTime * 100);
+        rigidbody.AddRelativeTorque(0, 0, RotationSpeed *  Time.deltaTime * 100);
     }
-    public void RollRight(float speed)
+    public void RollRight()
     {
-        rigidbody.AddRelativeTorque(0, 0, -RotationSpeed * speed * Time.deltaTime * 100);
+        rigidbody.AddRelativeTorque(0, 0, -RotationSpeed *  Time.deltaTime * 100);
     }
 
-    public void Stabilise(float speed)
+    public void Stabilise()
     {
         rigidbody.AddForce(-rigidbody.velocity * forwardSpeed * 10 * Time.deltaTime);
         rigidbody.AddTorque(-rigidbody.angularVelocity.normalized * 200 * RotationSpeed * Time.deltaTime);

@@ -3,15 +3,14 @@ using UnityEngine;
 
 public class ShipController : MonoBehaviour
 {
-    public event EventHandler<ShootArgs> Shoot;
-    public class ShootArgs : EventArgs
-    {
-        public Vector3 shootDir;
-    }
-
     private float defaultFOV;
     private float currentFOV;
     private Ship ship;
+    private WeaponSystem weaponSystem;
+
+    private void Awake() {
+        weaponSystem = GetComponent<WeaponSystem>();
+    }
 
     void Start()
     {
@@ -26,8 +25,7 @@ public class ShipController : MonoBehaviour
         // Create Shoot event on Left Click
         if (Input.GetMouseButtonDown(0))
         {
-            Vector3 shootDir = transform.forward;
-            Shoot?.Invoke(this, new ShootArgs { shootDir = shootDir });
+            weaponSystem.ShootGuns();
         }
     }
 
@@ -38,28 +36,28 @@ public class ShipController : MonoBehaviour
 
     private void CheckMovementControls()
     {
-        ship.TurnLeft(Input.GetAxis("Mouse Y"));
-        ship.TurnRight(Input.GetAxis("Mouse X"));
+        ship.LookUpDown(Input.GetAxis("Mouse Y"));
+        ship.LookLeftRight(Input.GetAxis("Mouse X"));
 
         if (Input.GetKey("w"))
         {
-            ship.ThrustForward(1);
+            ship.ThrustForward();
         }
         if (Input.GetKey("s"))
         {
-            ship.ThrustBackwards(1);
+            ship.ThrustBackwards();
         }
         if (Input.GetKey("a"))
         {
-            ship.RollLeft(1);
+            ship.RollLeft();
         }
         if (Input.GetKey("d"))
         {
-            ship.RollRight(1);
+            ship.RollRight();
         }
         if (Input.GetKey("space"))
         {
-            ship.Stabilise(1);
+            ship.Stabilise();
         }
     }
 

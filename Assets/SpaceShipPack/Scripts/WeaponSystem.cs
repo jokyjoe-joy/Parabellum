@@ -8,20 +8,19 @@ public class WeaponSystem : MonoBehaviour
     public Gun Gun2;
     public Transform Bullet1;
     public Transform Bullet2;
+    public bool isLookingForEnemy = true;
 
     void Start()
     {
-        // adding onShoot to shipController's onShoot event
-        ShipController shipcontroller = transform.GetComponent<ShipController>();
-        shipcontroller.Shoot += OnShoot;
+       
     }
 
 
-    private void OnShoot(object sender, ShipController.ShootArgs e)
+    public void ShootGuns()
     {   
         // Shooting, then reloading
-        if (Gun1 != null) {Gun1.Shoot(Bullet1);}
-        if (Gun2 != null) {Gun2.Shoot(Bullet2);}
+        if (Gun1 != null) {Gun1.Shoot(Bullet1, isLookingForEnemy);}
+        if (Gun2 != null) {Gun2.Shoot(Bullet2, isLookingForEnemy);}
         if (Gun1 != null) {StartCoroutine(Gun1.Reload());}
         if (Gun2 != null) {StartCoroutine(Gun2.Reload());}
     }
