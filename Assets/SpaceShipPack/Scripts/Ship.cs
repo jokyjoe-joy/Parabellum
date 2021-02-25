@@ -30,7 +30,10 @@ public class Ship : MonoBehaviour
 
     public void ThrustForward(float speed)
     {
-        rigidbody.AddForce(transform.forward * forwardSpeed * 100 * Time.deltaTime * speed);
+        if (currentVelocity.magnitude < MaxSpeed) {
+            rigidbody.AddForce(transform.forward * forwardSpeed * 100 * Time.deltaTime * speed);
+        }
+
     }
 
     public void ThrustBackwards(float speed)

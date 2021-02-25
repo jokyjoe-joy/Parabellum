@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Gun : MonoBehaviour
 {
-    public int reloadTime = 5;
+    public float reloadTime = 5;
     public bool isGunLoaded = true;
     public bool isGunLoading = false;
     public GameObject shootingVFX;

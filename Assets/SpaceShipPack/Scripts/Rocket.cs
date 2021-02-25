@@ -6,6 +6,8 @@ public class Rocket : MonoBehaviour
 {
     public float moveSpeed = 100f;
     public int DamageAmount = 10;
+    public float distanceToExplode = 15;
+    public float explosionRadius = 100;
     public GameObject explosionVFX;
     public float explosionScale = 2;
     // TODO: Rocket having a range, or maybe the gun?
@@ -23,7 +25,7 @@ public class Rocket : MonoBehaviour
         // TODO: Rocket should start with the same velocity as the ship
         // because the other way it hits the shooter ship if it is moving
         //rigidbody.AddForce(transform.forward * Time.deltaTime * 100);
-
+        Destroy(gameObject, 10f);
         
     }
     GameObject GetClosestEnemy(GameObject[] enemies)
@@ -68,6 +70,9 @@ public class Rocket : MonoBehaviour
         {
             Vector3 vector = target.transform.position - transform.position;
             rigidbody.AddForce(vector * Time.deltaTime * moveSpeed);
+            if (vector.magnitude < distanceToExplode) {
+                Explode();
+            }
         } 
         else 
         {
@@ -78,25 +83,29 @@ public class Rocket : MonoBehaviour
 
     }
 
+    private void Explode() {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
+        foreach (Collider collider in colliders) {
+            Ship ship = collider.gameObject.GetComponent<Ship>();
+            if (ship == null && collider.gameObject.transform.parent != null) {
+                ship = collider.gameObject.transform.parent.GetComponent<Ship>();
+            }
+            if (ship != null)
+            {
+                // target hit
+                // FIXME: For some reason, sometimes it doubles the damage?? (hitting multiple colliders as well?)
+                ship.Damage(DamageAmount);
+                // create VFX
+                GameObject explosion = Instantiate(explosionVFX, transform.position, Quaternion.identity);
+                explosion.transform.localScale *= explosionScale * collider.gameObject.transform.localScale.x;
+                Destroy(explosion, 2f);
+                Destroy(gameObject);
+            }
+        }
+    }
+
     private void OnTriggerEnter(Collider collider)
     {
-        // Find Ship component on collider.
-        // If there is no Ship component, then try to get it from parent.
-        Ship ship = collider.gameObject.GetComponent<Ship>();
-        if (ship == null && collider.gameObject.transform.parent != null) {
-            ship = collider.gameObject.transform.parent.GetComponent<Ship>();
-        }
-
-        if (ship != null)
-        {
-            // target hit
-            // FIXME: For some reason, sometimes it doubles the damage (hitting multiple colliders as well?)
-            ship.Damage(DamageAmount);
-            // create VFX
-            GameObject explosion = Instantiate(explosionVFX, transform.position, Quaternion.identity);
-            explosion.transform.localScale *= explosionScale * collider.gameObject.transform.localScale.x;
-            Destroy(explosion, 2f);
-            Destroy(gameObject);
-        }
+        Explode();
     }
 }
