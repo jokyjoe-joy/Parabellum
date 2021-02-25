@@ -8,6 +8,7 @@ public class Rocket : MonoBehaviour
     public int DamageAmount = 10;
     public GameObject explosionVFX;
     public float explosionScale = 2;
+    // TODO: Rocket having a range, or maybe the gun?
     private Vector3 shootDir;
     private new Rigidbody rigidbody;
 
@@ -22,6 +23,7 @@ public class Rocket : MonoBehaviour
         // TODO: Rocket should start with the same velocity as the ship
         // because the other way it hits the shooter ship if it is moving
         //rigidbody.AddForce(transform.forward * Time.deltaTime * 100);
+
         
     }
     GameObject GetClosestEnemy(GameObject[] enemies)
