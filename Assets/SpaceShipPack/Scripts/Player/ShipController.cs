@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
 
 public class ShipController : MonoBehaviour
 {
@@ -7,9 +8,26 @@ public class ShipController : MonoBehaviour
     private float currentFOV;
     private Ship ship;
     private WeaponSystem weaponSystem;
+    private PostProcessVolume postProcessVolume;
+    private ChromaticAberration chromaticAberration;
+    private LensDistortion lensDistortion;
+    private Vignette vignette;
+    private float vignetteDefaultValue;
+    private CameraShake cameraShake;
+    private HealthData healthData;
+    
 
     private void Awake() {
         weaponSystem = GetComponent<WeaponSystem>();
+        healthData = GetComponent<HealthData>();
+        postProcessVolume = Camera.main.GetComponent<PostProcessVolume>();
+        postProcessVolume.profile.TryGetSettings(out chromaticAberration);
+        postProcessVolume.profile.TryGetSettings(out lensDistortion);
+        postProcessVolume.profile.TryGetSettings(out vignette);
+        vignetteDefaultValue = vignette.intensity.value;
+        cameraShake = Camera.main.GetComponent<CameraShake>();
+        healthData.onDamage.AddListener(ShakeCamera);
+
     }
 
     void Start()
@@ -81,5 +99,28 @@ public class ShipController : MonoBehaviour
 
         // setting fov
         Camera.main.fieldOfView = currentFOV;
+
+        // TODO: Also finish these stuff! And use Override!!!!
+        float aberrationIntensity = ship.currentVelocity.magnitude / 150f;
+        chromaticAberration.intensity.value = Mathf.Clamp(aberrationIntensity, 0f, 1f);
+
+        float lensDistortionIntensity = -(ship.currentVelocity.magnitude / 10);
+        lensDistortion.intensity.value = Mathf.Clamp(lensDistortionIntensity, -20f, 0f);
+
+        if (healthData.health < healthData.healthMax) {
+            vignette.color.Override(Color.red);
+            float vignetteIntensityValue = (healthData.healthMax - healthData.health) / healthData.healthMax;
+            vignette.intensity.Override(Mathf.Clamp(vignetteIntensityValue,vignetteDefaultValue,0.65f));
+            
+            chromaticAberration.intensity.Override(1f);
+        } else {
+            vignette.intensity.Override(vignetteDefaultValue);
+        }
+
+    }
+
+    
+    private void ShakeCamera() {
+        cameraShake.shakeDuration = 0.4f;
     }
 }
