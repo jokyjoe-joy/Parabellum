@@ -11,7 +11,7 @@ public class EnemyPointer : MonoBehaviour
 
     private void Awake() {
 
-        pointerRectTransform = transform.Find("Pointer").GetComponent<RectTransform>();
+        pointerRectTransform = GetComponent<RectTransform>();
     }
 
     private void Update() {
