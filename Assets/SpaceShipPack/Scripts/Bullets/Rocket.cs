@@ -20,7 +20,7 @@ public class Rocket : MonoBehaviour
     private Vector3 initialVelocity;
     private new Rigidbody rigidbody;
     private bool isLookingForEnemy = true;
-    public float timeBeforeChasing = 1.0f;
+    public float timeBeforeChasing = 0.4f;
 
 
     private void Awake() {
@@ -81,11 +81,8 @@ public class Rocket : MonoBehaviour
             case State.ChaseTarget:
                 GameObject[] enemies;
                 // Check enemies nearby
-                if (this.isLookingForEnemy) {
-                    enemies = GameObject.FindGameObjectsWithTag("Enemy");
-                } else {
-                    enemies = GameObject.FindGameObjectsWithTag("PlayerTag");
-                }
+                if (this.isLookingForEnemy) enemies = GameObject.FindGameObjectsWithTag("Enemy");
+                else enemies = GameObject.FindGameObjectsWithTag("PlayerTag");
                 // Find nearest one
                 GameObject target = GetClosestEnemy(enemies);
 

@@ -8,13 +8,26 @@ public class WeaponSystem : MonoBehaviour
     public Gun Gun2;
     public Transform Bullet1;
     public Transform Bullet2;
-    public bool isLookingForEnemy = true;
+    private bool isLookingForEnemy = false;
+
+    private void Awake() {
+        // In case this is a player ship, attack AI
+        ShipAI shipAI = GetComponent<ShipAI>();
+        if (shipAI == null) isLookingForEnemy = true;
+    }
 
     void Start()
     {
        
     }
 
+    private void Update() {
+        //GameObject enemy = GameObject.FindGameObjectWithTag("Enemy");
+        //Gun1.transform.parent.transform.LookAt(enemy.transform.position);
+        //Gun2.transform.parent.transform.LookAt(enemy.transform.position);
+        Debug.DrawLine(Gun1.transform.parent.transform.position, Gun1.transform.parent.transform.forward * 200 + Gun1.transform.parent.transform.position);
+        Debug.DrawLine(Gun2.transform.parent.transform.position, Gun2.transform.parent.transform.forward * 200 + Gun2.transform.parent.transform.position);
+    }
 
     public void ShootGuns(Vector3 initialVelocity)
     {   
