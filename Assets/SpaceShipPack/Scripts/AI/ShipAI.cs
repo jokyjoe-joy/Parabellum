@@ -42,8 +42,6 @@ public class ShipAI : MonoBehaviour
         }
         
          */
-        // TODO: the function below works, however "AI" is cheating greatly
-        // we don't need to solve it yet, but documentation would help ;)
         // Look at target
         var rotation = Quaternion.LookRotation (target - transform.position);
         transform.rotation = Quaternion.Slerp (transform.rotation, rotation, Time.deltaTime * DampingOnTurning);
@@ -55,11 +53,11 @@ public class ShipAI : MonoBehaviour
                 ship.ThrustForward();
             } else {
                 // Stopping.
-                ship.rigidbody.velocity = new Vector3(0,0,0);
+                ship.Stabilise();
             }
         } else {
             if (ship.rigidbody.velocity.magnitude > 20) {
-                ship.rigidbody.velocity = new Vector3(0,0,0);
+                ship.Stabilise();
             }
         }
     }
@@ -97,9 +95,9 @@ public class ShipAI : MonoBehaviour
                 var rotation = Quaternion.LookRotation (player.transform.position - transform.position);
                 transform.rotation = Quaternion.Slerp (transform.rotation, rotation, Time.deltaTime * DampingOnTurning);
                 
-                float shootingRange = 100f;
+                float shootingRange = 200f;
                 if (Vector3.Distance(player.transform.position, transform.position) < shootingRange) {
-                    ship.rigidbody.velocity = new Vector3(0,0,0);
+                    ship.Stabilise();
                     weaponSystem.ShootGuns(ship.currentVelocity);
                 } else {
                     Debug.DrawLine(transform.position, player.transform.position, Color.green);

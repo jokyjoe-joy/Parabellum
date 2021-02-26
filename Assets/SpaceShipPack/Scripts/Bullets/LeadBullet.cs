@@ -30,8 +30,6 @@ public class LeadBullet : MonoBehaviour
     {
         // Find Ship component on collider.
         // If there is no Ship component, then try to get it from parent.
-        // TODO: Create a new Bullet script that will be inherited by this and Rocket
-        // so I don't have to repeat OnTriggerEnter
         HealthData healthData = collider.gameObject.GetComponent<HealthData>();
         if (healthData == null && collider.gameObject.transform.parent != null) {
             healthData = collider.gameObject.transform.parent.GetComponent<HealthData>();

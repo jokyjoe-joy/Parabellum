@@ -16,7 +16,6 @@ public class Rocket : MonoBehaviour
     public float explosionRadius = 1;
     public GameObject explosionVFX;
     public float explosionScale = 2;
-    // TODO: Rocket having a range, or maybe the gun?
     private Vector3 shootDir;
     private Vector3 initialVelocity;
     private new Rigidbody rigidbody;
