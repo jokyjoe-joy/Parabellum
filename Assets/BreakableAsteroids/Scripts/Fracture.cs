@@ -27,7 +27,14 @@ public class Fracture : MonoBehaviour
         foreach(Transform asteroidPart in fracturedInstance.transform) {
             Rigidbody rb = asteroidPart.GetComponent<Rigidbody>();
             rb.useGravity = false;
-            rb.AddExplosionForce(100, transform.position, 50);
+           
+            rb.AddExplosionForce(Random.Range(10,100), transform.position, 50);
+            // TODO: This is added for performance, as there are tons of instantiated
+            // objects here, so maybe we should think about something better?
+            // Get random boolean, then destroy it if true.
+            if (Random.value > 0.2f) {
+                Destroy(asteroidPart.gameObject);
+            }
         }
         Destroy(gameObject); //Destroy the object to stop it getting in the way
     }
