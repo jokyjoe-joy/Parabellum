@@ -4,20 +4,28 @@ using UnityEngine;
 
 public class ShipAI : MonoBehaviour
 {
+    private enum State {
+        Roaming,
+        ChaseTarget
+    }
+    private State state;
     public float DampingOnTurning = 3f;
     public float DistanceFromMoveTarget = 50f;
     private Vector3 startingPosition;
     private Vector3 roamPosition;
     private Ship ship;
     private WeaponSystem weaponSystem;
-    private bool moveResult = false;
 
     // Returns random normalized vector
-    private Vector3 getRandomDirection() {
+    private Vector3 GetRandomDirection() {
         return new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f)).normalized;
     }
 
-    private bool MoveTo(Vector3 target) {
+    private Vector3 GetRoamingPosition() {
+        return startingPosition + GetRandomDirection() * Random.Range(100f, 500f);
+    }
+
+    private void MoveTo(Vector3 target) {
         /* 
         // TODO: Finish this pseudo-code :)
         float neededDistanceFromTarget;
@@ -43,19 +51,17 @@ public class ShipAI : MonoBehaviour
         if (Quaternion.Angle(transform.rotation, rotation) < 5) {
             // Then move towards target
             Vector3 vectorTowardsTarget = (target - transform.position);
-            if (vectorTowardsTarget.magnitude >= DistanceFromMoveTarget) {
+            if (vectorTowardsTarget.magnitude >= 1) {
                 ship.ThrustForward();
             } else {
                 // Stopping.
                 ship.rigidbody.velocity = new Vector3(0,0,0);
-                return true;
             }
         } else {
             if (ship.rigidbody.velocity.magnitude > 20) {
                 ship.rigidbody.velocity = new Vector3(0,0,0);
             }
         }
-        return false;
     }
 
     void Awake() {
@@ -65,30 +71,48 @@ public class ShipAI : MonoBehaviour
     void Start()
     {
         startingPosition = transform.position;
-        roamPosition = startingPosition + getRandomDirection() * Random.Range(10f, 70f);
+        roamPosition = GetRoamingPosition();
     }
 
-    void FixedUpdate() {
-        GameObject player = GameObject.FindGameObjectWithTag("PlayerTag");
-        var distanceFromPlayer = player.transform.position - transform.position;
-        if (distanceFromPlayer.magnitude > DistanceFromMoveTarget) {
-            moveResult = false;
+    void Update() {
+        switch (state) {
+            default:
+            case State.Roaming:
+                MoveTo(roamPosition);
+                Debug.DrawLine(transform.position, roamPosition, Color.green);
+                float reachedPositionDistance = 10f;
+                if (Vector3.Distance(transform.position, roamPosition) < reachedPositionDistance) {
+                    // Reached roam position, thus getting new roam position
+                    roamPosition = GetRoamingPosition();
+                }
+                
+                GameObject player = GameObject.FindGameObjectWithTag("PlayerTag");
+                FindTarget(player);
+                break;
+            case State.ChaseTarget:
+                // Look at player
+                // If within shootingRange of player, stop and shoot at it
+                // Otherwise move towards player
+                player = GameObject.FindGameObjectWithTag("PlayerTag");
+                var rotation = Quaternion.LookRotation (player.transform.position - transform.position);
+                transform.rotation = Quaternion.Slerp (transform.rotation, rotation, Time.deltaTime * DampingOnTurning);
+                
+                float shootingRange = 100f;
+                if (Vector3.Distance(player.transform.position, transform.position) < shootingRange) {
+                    ship.rigidbody.velocity = new Vector3(0,0,0);
+                    weaponSystem.ShootGuns();
+                } else {
+                    Debug.DrawLine(transform.position, player.transform.position, Color.green);
+                    MoveTo(player.transform.position);
+                }
+                break;
         }
-        
-        // look at opponent
-        var rotation = Quaternion.LookRotation (player.transform.position - transform.position);
-        if (Quaternion.Angle(transform.rotation, rotation) < 2) {
-            transform.rotation = Quaternion.Slerp (transform.rotation, rotation, Time.deltaTime * DampingOnTurning);
-        }
+    }
 
-        // Move if haven't arrived
-        if (!moveResult) {moveResult = MoveTo(player.transform.position);}
-        else {
-            if (ship.rigidbody.velocity.magnitude < 10) {
-                weaponSystem.ShootGuns();
-            } else {
-                ship.rigidbody.velocity = new Vector3(0,0,0);
-            }
+    void FindTarget(GameObject target) {
+        float targetRange = 500f;
+        if (Vector3.Distance(transform.position, target.transform.position) < targetRange) {
+            state = State.ChaseTarget;
         }
     }
 }
