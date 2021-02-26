@@ -92,15 +92,15 @@ public class Rocket : MonoBehaviour
     private void Explode() {
         Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
         foreach (Collider collider in colliders) {
-            Ship ship = collider.gameObject.GetComponent<Ship>();
-            if (ship == null && collider.gameObject.transform.parent != null) {
-                ship = collider.gameObject.transform.parent.GetComponent<Ship>();
+            HealthData healthData = collider.gameObject.GetComponent<HealthData>();
+            if (healthData == null && collider.gameObject.transform.parent != null) {
+                healthData = collider.gameObject.transform.parent.GetComponent<HealthData>();
             }
-            if (ship != null)
+            if (healthData != null)
             {
                 // target hit
                 // FIXME: For some reason, sometimes it doubles the damage?? (hitting multiple colliders as well?)
-                ship.Damage(DamageAmount);
+                healthData.Damage(DamageAmount);
                 // create VFX
                 GameObject explosion = Instantiate(explosionVFX, transform.position, Quaternion.identity);
                 explosion.transform.localScale *= explosionScale * collider.gameObject.transform.localScale.x;

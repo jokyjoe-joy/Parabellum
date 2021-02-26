@@ -15,13 +15,19 @@ public class Ship : MonoBehaviour
     public float explosionScale = 1;
 
     [HideInInspector] public Vector3 currentVelocity;
-    [HideInInspector] public int HEALTH = 100;
     [HideInInspector] public new Rigidbody rigidbody; // FIXME: shouldn't be public later on!
+    [HideInInspector] public HealthData healthData;
 
-    // Start is called before the first frame update
-    void Start()
-    {
+    private void Awake() {
+        healthData = GetComponent<HealthData>();
         rigidbody = GetComponent<Rigidbody>();
+    }
+
+    private void Update() {
+        if (healthData.health <= 0)
+        {
+            Explode();
+        }
     }
 
     private void FixedUpdate() {
@@ -64,16 +70,6 @@ public class Ship : MonoBehaviour
     {
         rigidbody.AddForce(-rigidbody.velocity * forwardSpeed * 10 * Time.deltaTime);
         rigidbody.AddTorque(-rigidbody.angularVelocity.normalized * 200 * RotationSpeed * Time.deltaTime);
-    }
-
-    public void Damage(int amount)
-    {
-        HEALTH -= amount;
-        Debug.Log(HEALTH);
-        if (HEALTH <= 0)
-        {
-            Explode();
-        }
     }
 
     private void Explode() {

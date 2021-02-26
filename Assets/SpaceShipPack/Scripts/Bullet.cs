@@ -31,14 +31,14 @@ public class Bullet : MonoBehaviour
         // If there is no Ship component, then try to get it from parent.
         // TODO: Create a new Bullet script that will be inherited by this and Rocket
         // so I don't have to repeat OnTriggerEnter
-        Ship ship = collider.gameObject.GetComponent<Ship>();
-        if (ship == null && collider.gameObject.transform.parent != null) {
-            ship = collider.gameObject.transform.parent.GetComponent<Ship>();
+        HealthData healthData = collider.gameObject.GetComponent<HealthData>();
+        if (healthData == null && collider.gameObject.transform.parent != null) {
+            healthData = collider.gameObject.transform.parent.GetComponent<HealthData>();
         }
-        if ( ship != null )
+        if ( healthData != null )
         {
             // target hit
-            ship.Damage(DamageAmount);
+            healthData.Damage(DamageAmount);
             Destroy(gameObject);
         }
     }
