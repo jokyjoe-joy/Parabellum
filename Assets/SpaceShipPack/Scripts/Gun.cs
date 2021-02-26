@@ -33,7 +33,7 @@ public class Gun : MonoBehaviour
             LeadBullet bulletController = bulletTransform.GetComponent<LeadBullet>();
             if (bulletController != null)
             {
-                bulletController.Setup(transform.forward);
+                bulletController.Setup(transform.forward, initialVelocity);
             }
 
             Rocket rocketController = bulletTransform.GetComponent<Rocket>();

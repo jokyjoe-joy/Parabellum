@@ -32,7 +32,6 @@ public class Rocket : MonoBehaviour
     {
         this.shootDir = shootDir;
         transform.localRotation = Quaternion.Euler(90,180,90);
-        this.initialVelocity = initialVelocity;
         this.isLookingForEnemy = isLookingForEnemy;
         rigidbody.velocity = initialVelocity;
         Destroy(gameObject, 10f);

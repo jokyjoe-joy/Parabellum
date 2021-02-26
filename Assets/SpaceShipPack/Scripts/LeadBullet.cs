@@ -12,9 +12,10 @@ public class LeadBullet : MonoBehaviour
     private void Awake() {
         rigidbody = GetComponent<Rigidbody>();
     }
-    public void Setup(Vector3 shootDir)
+    public void Setup(Vector3 shootDir, Vector3 initialVelocity)
     {
         this.shootDir = shootDir;
+        rigidbody.velocity = initialVelocity;
         //transform.right = shootDir; // ???
         Destroy(gameObject, 5f);
     }
