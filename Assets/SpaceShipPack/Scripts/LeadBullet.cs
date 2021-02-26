@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Bullet : MonoBehaviour
+public class LeadBullet : MonoBehaviour
 {
     public float moveSpeed = 100f;
     public int DamageAmount = 10;

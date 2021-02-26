@@ -100,7 +100,7 @@ public class ShipAI : MonoBehaviour
                 float shootingRange = 100f;
                 if (Vector3.Distance(player.transform.position, transform.position) < shootingRange) {
                     ship.rigidbody.velocity = new Vector3(0,0,0);
-                    weaponSystem.ShootGuns();
+                    weaponSystem.ShootGuns(ship.currentVelocity);
                 } else {
                     Debug.DrawLine(transform.position, player.transform.position, Color.green);
                     MoveTo(player.transform.position);

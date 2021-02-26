@@ -11,8 +11,9 @@ public class Gun : MonoBehaviour
     public GameObject shootingVFX;
     public float shootingVFXScale = 1;
 
-    public void Shoot(Transform pfBullet, bool isLookingForEnemy=true)
+    public void Shoot(Transform pfBullet, Vector3 initialVelocity, bool isLookingForEnemy=true)
     {
+        if (initialVelocity == null) initialVelocity = new Vector3(0,0,0);
         // Only shoot if gun is loaded
         if (isGunLoaded) {
             // Shooting out bullet, then "deloading" Gun
@@ -29,7 +30,7 @@ public class Gun : MonoBehaviour
             }
 
             // Init Bullet's script
-            Bullet bulletController = bulletTransform.GetComponent<Bullet>();
+            LeadBullet bulletController = bulletTransform.GetComponent<LeadBullet>();
             if (bulletController != null)
             {
                 bulletController.Setup(transform.forward);
@@ -38,7 +39,7 @@ public class Gun : MonoBehaviour
             Rocket rocketController = bulletTransform.GetComponent<Rocket>();
             if (rocketController != null)
             {
-                rocketController.Setup(transform.forward, isLookingForEnemy);
+                rocketController.Setup(transform.forward, initialVelocity, isLookingForEnemy);
             }
         }
     }

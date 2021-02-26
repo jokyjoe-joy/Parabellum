@@ -16,11 +16,11 @@ public class WeaponSystem : MonoBehaviour
     }
 
 
-    public void ShootGuns()
+    public void ShootGuns(Vector3 initialVelocity)
     {   
         // Shooting, then reloading
-        if (Gun1 != null) {Gun1.Shoot(Bullet1, isLookingForEnemy);}
-        if (Gun2 != null) {Gun2.Shoot(Bullet2, isLookingForEnemy);}
+        if (Gun1 != null) {Gun1.Shoot(Bullet1, initialVelocity, isLookingForEnemy);}
+        if (Gun2 != null) {Gun2.Shoot(Bullet2, initialVelocity, isLookingForEnemy);}
         if (Gun1 != null) {StartCoroutine(Gun1.Reload());}
         if (Gun2 != null) {StartCoroutine(Gun2.Reload());}
     }

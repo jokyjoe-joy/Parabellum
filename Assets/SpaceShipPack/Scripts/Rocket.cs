@@ -4,29 +4,37 @@ using UnityEngine;
 
 public class Rocket : MonoBehaviour
 {
+    private enum State {
+        Startup,
+        GoingForward,
+        ChaseTarget
+    }
+    private State state;
     public float moveSpeed = 100f;
     public int DamageAmount = 10;
-    public float distanceToExplode = 15;
-    public float explosionRadius = 100;
+    public float distanceToExplode = 1;
+    public float explosionRadius = 1;
     public GameObject explosionVFX;
     public float explosionScale = 2;
     // TODO: Rocket having a range, or maybe the gun?
     private Vector3 shootDir;
+    private Vector3 initialVelocity;
     private new Rigidbody rigidbody;
     private bool isLookingForEnemy = true;
+    public float timeBeforeChasing = 1.0f;
 
 
     private void Awake() {
         rigidbody = GetComponent<Rigidbody>();
     }
 
-    public void Setup(Vector3 shootDir, bool isLookingForEnemy = true)
+    public void Setup(Vector3 shootDir, Vector3 initialVelocity, bool isLookingForEnemy = true)
     {
         this.shootDir = shootDir;
+        transform.localRotation = Quaternion.Euler(90,180,90);
+        this.initialVelocity = initialVelocity;
         this.isLookingForEnemy = isLookingForEnemy;
-        // TODO: Rocket should start with the same velocity as the ship
-        // because the other way it hits the shooter ship if it is moving
-        //rigidbody.AddForce(transform.forward * Time.deltaTime * 100);
+        rigidbody.velocity = initialVelocity;
         Destroy(gameObject, 10f);
         
     }
@@ -62,31 +70,47 @@ public class Rocket : MonoBehaviour
 
     private void FixedUpdate()
     {
-        GameObject[] enemies;
-        // Check enemies nearby
-        if (this.isLookingForEnemy) {
-            enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        } else {
-            enemies = GameObject.FindGameObjectsWithTag("PlayerTag");
-        }
-        // Find nearest one
-        GameObject target = GetClosestEnemy(enemies);
+        switch (state) {
+            default:
+            case State.Startup:
+                // Wait for timeBeforeChasing time, until then, move forward
+                StartCoroutine(ChangeToChasingInSeconds(timeBeforeChasing));
+                state = State.GoingForward;
+                break;
+            case State.GoingForward:
+                rigidbody.AddForce(shootDir * Time.deltaTime * moveSpeed * 200);
+                break;
+            case State.ChaseTarget:
+                GameObject[] enemies;
+                // Check enemies nearby
+                if (this.isLookingForEnemy) {
+                    enemies = GameObject.FindGameObjectsWithTag("Enemy");
+                } else {
+                    enemies = GameObject.FindGameObjectsWithTag("PlayerTag");
+                }
+                // Find nearest one
+                GameObject target = GetClosestEnemy(enemies);
 
-        if (target != null)
-        {
-            Vector3 vector = target.transform.position - transform.position;
-            rigidbody.AddForce(vector * Time.deltaTime * moveSpeed);
-            if (vector.magnitude < distanceToExplode) {
-                Explode();
-            }
-        } 
-        else 
-        {
-            rigidbody.AddForce(transform.forward * Time.deltaTime * moveSpeed * 200);
-            Destroy(gameObject, 3f);
+                if (target != null)
+                {
+                    Vector3 vector = target.transform.position - transform.position;
+                    rigidbody.AddForce(vector * Time.deltaTime * moveSpeed);
+                    if (vector.magnitude < distanceToExplode) {
+                        Explode();
+                    }
+                } 
+                else 
+                {
+                    rigidbody.AddForce(transform.forward * Time.deltaTime * moveSpeed * 200);
+                    Destroy(gameObject, 3f);
+                }
+                break;
         }
-        
+    }
 
+    IEnumerator ChangeToChasingInSeconds(float delay) {
+        yield return new WaitForSeconds(delay);
+        state = State.ChaseTarget;
     }
 
     private void Explode() {
