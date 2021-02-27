@@ -16,11 +16,6 @@ public class WeaponSystem : MonoBehaviour
         if (shipAI == null) isLookingForEnemy = true;
     }
 
-    void Start()
-    {
-       
-    }
-
     private void Update() {
         //GameObject enemy = GameObject.FindGameObjectWithTag("Enemy");
         //Gun1.transform.parent.transform.LookAt(enemy.transform.position);
@@ -37,4 +32,5 @@ public class WeaponSystem : MonoBehaviour
         if (Gun1 != null) {StartCoroutine(Gun1.Reload());}
         if (Gun2 != null) {StartCoroutine(Gun2.Reload());}
     }
+
 }

@@ -23,7 +23,7 @@ public class EnemyPointer : MonoBehaviour
             return;
         }
 
-        bool isOffScreen = jokyUtilities.checkIfObjectIsOnScreen(targetPosition);
+        bool isOffScreen = jokyUtilities.checkIfObjectIsOffScreen(targetPosition);
 
         // If target is not off-screen, then position pointer on target,
         // while scaling it according the distance between the camera and the target.

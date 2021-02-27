@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ShipAI : MonoBehaviour
 {
+    public string nameOfAI = "Joe";
     private enum State {
         Roaming,
         ChaseTarget

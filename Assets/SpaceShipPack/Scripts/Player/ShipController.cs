@@ -15,7 +15,7 @@ public class ShipController : MonoBehaviour
     private float vignetteDefaultValue;
     private CameraShake cameraShake;
     private HealthData healthData;
-    private GameObject currentTarget = null;
+    [HideInInspector] public GameObject currentTarget = null;
     
 
     private void Awake() {
@@ -48,23 +48,31 @@ public class ShipController : MonoBehaviour
         }
         if (Input.GetKeyDown("t")) {
 
-            // In case Player doesn't have a target, try to target the closest enemy
-            // which is on-screen.
-            if (currentTarget == null) {
-                // Try to target enemy
-                // Check enemies nearby
-                GameObject [] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-                GameObject target = jokyUtilities.GetClosestGameObject(enemies, transform);
-                bool isOffScreen = jokyUtilities.checkIfObjectIsOnScreen(target.transform.position);
-
-
-                if (!isOffScreen) {
+            // Try to target enemy
+            // Check enemies nearby
+            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+            GameObject target = jokyUtilities.GetClosestGameObject(enemies, transform);
+            
+            if (target != null) {
+                // FIXME: isOffScreen doesn't work properly! Sometimes when object is offScreen
+                // it still returns false
+                bool isOffScreen = jokyUtilities.checkIfObjectIsOffScreen(target.transform.position);
+                // In case Player doesn't have a target, try to target the closest enemy
+                // which is on-screen.
+                if (currentTarget == null && !isOffScreen) {
                     // Invoke onTargeted event on the targeted ship
-                    currentTarget = target;
+                    // Below parent is needed, as enemyTag is its child gameobject
+                    currentTarget = target.transform.parent.gameObject;
                     Ship enemyShip = target.transform.parent.GetComponent<Ship>();
                     if (enemyShip != null) enemyShip.onTargeted.Invoke();
+                } else {
+                    // If there is only one enemy nearby, then turn off targeting
+                    if (enemies.Length == 1) {
+                        currentTarget = null;
+                    }
                 }
             }
+
         }
     }
 
