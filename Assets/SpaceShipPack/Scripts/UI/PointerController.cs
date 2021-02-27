@@ -1,14 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PointerController : MonoBehaviour
 {
     Dictionary<int, EnemyPointer> pointers = new Dictionary<int, EnemyPointer>(); // int: ID of enemy, EnemyPointer: pointer instance
     public GameObject pfPointer;
+    public Sprite basicPointerSprite;
+    public Sprite targetedPointerSprite;
+    private GameObject currentTarget;
+    private ShipController playerShipController;
 
+    private void Awake() {
+        playerShipController = GameObject.FindGameObjectWithTag("PlayerTag").transform.parent.GetComponent<ShipController>();
+    }
     void Update()
     {
+        if (playerShipController.currentTarget != null) currentTarget = playerShipController.currentTarget;
+        else currentTarget = null; // In case currentTarget of ship changes during gameplay
+
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         foreach(GameObject enemy in enemies) {
             int enemyID = enemy.GetInstanceID();
@@ -18,6 +29,15 @@ public class PointerController : MonoBehaviour
             if (pointers.ContainsKey(enemyID)) {
                 EnemyPointer pointer = pointers[enemyID];
                 pointer.SetTarget(enemy.transform.position);
+                // Set its sprite.
+                Image pointerImage = pointer.GetComponent<Image>();
+                // NOTE: as currentTarget, shipController has the gameobject with Ship,
+                // but here we save the instanceID of the EnemyTag child
+                if (currentTarget != null && currentTarget.transform.Find("EnemyTag").gameObject.GetInstanceID() == enemyID) {
+                    pointerImage.sprite = targetedPointerSprite;
+                } else {
+                    pointerImage.sprite = basicPointerSprite;
+                }
             
             } else {
                 // Instantiate the pointer (which will be the one putting itself to the target's position)
@@ -27,6 +47,15 @@ public class PointerController : MonoBehaviour
                 EnemyPointer pointer = pointerObj.GetComponent<EnemyPointer>();
                 pointerObj.transform.SetParent(transform);
                 pointer.SetTarget(enemy.transform.position);
+                // Set its sprite
+                Image pointerImage = pointer.GetComponent<Image>();
+                // NOTE: as currentTarget, shipController has the gameobject with Ship,
+                // but here we save the instanceID of the EnemyTag child
+                if (currentTarget != null && currentTarget.transform.Find("EnemyTag").gameObject.GetInstanceID() == enemyID) {
+                    pointerImage.sprite = targetedPointerSprite;
+                } else {
+                    pointerImage.sprite = basicPointerSprite;
+                }
                 pointers.Add(enemyID, pointer);
             }
         }

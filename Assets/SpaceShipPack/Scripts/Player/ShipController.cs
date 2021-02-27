@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 
@@ -69,6 +68,10 @@ public class ShipController : MonoBehaviour
                     // If there is only one enemy nearby, then turn off targeting
                     if (enemies.Length == 1) {
                         currentTarget = null;
+                    } else {
+                        // TODO: This should not select randomly, but selecting in order of
+                        // distance (first the ones close, then the ones far)
+                        currentTarget = enemies[Random.Range(0,enemies.Length)].transform.parent.gameObject;
                     }
                 }
             }

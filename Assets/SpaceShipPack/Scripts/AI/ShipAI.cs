@@ -54,11 +54,12 @@ public class ShipAI : MonoBehaviour
                 ship.ThrustForward();
             } else {
                 // Stopping.
-                ship.Stabilise();
+                ship.rigidbody.velocity = new Vector3(0,0,0);
             }
         } else {
             if (ship.rigidbody.velocity.magnitude > 20) {
-                ship.Stabilise();
+                // Stopping.
+                ship.rigidbody.velocity = new Vector3(0,0,0);
             }
         }
     }
@@ -75,7 +76,7 @@ public class ShipAI : MonoBehaviour
     }
 
     void OnTargeted() {
-        Debug.Log("AI HAS BEEN TARGETED");
+        state = State.ChaseTarget;
     }
 
     void Update() {
