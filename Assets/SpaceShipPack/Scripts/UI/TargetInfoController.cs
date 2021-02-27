@@ -25,7 +25,8 @@ public class TargetInfoController : MonoBehaviour
                 child.gameObject.SetActive(true);
             }
             targetName.text = target.GetComponent<ShipAI>().nameOfAI;
-            targetHealth.text = target.GetComponent<HealthData>().health.ToString();
+            HealthData targetHealthData = target.GetComponent<HealthData>();
+            targetHealth.text = (targetHealthData.health / targetHealthData.healthMax * 100).ToString() + "%";
         } else {
             // Disable children
             foreach (Transform child in transform) {
