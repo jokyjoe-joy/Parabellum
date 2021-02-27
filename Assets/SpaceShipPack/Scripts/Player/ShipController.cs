@@ -27,7 +27,6 @@ public class ShipController : MonoBehaviour
         vignetteDefaultValue = vignette.intensity.value;
         cameraShake = Camera.main.GetComponent<CameraShake>();
         healthData.onDamage.AddListener(ShakeCamera);
-
     }
 
     void Start()
@@ -82,6 +81,7 @@ public class ShipController : MonoBehaviour
     private void FixedUpdate() {
         CheckMovementControls();
         AdjustFOVOnSpeed();
+        AdjustPostProcessing();
     }
 
     private void CheckMovementControls()
@@ -131,13 +131,14 @@ public class ShipController : MonoBehaviour
 
         // setting fov
         Camera.main.fieldOfView = currentFOV;
+    }
 
-        // TODO: Also finish these stuff! And use Override!!!!
+    private void AdjustPostProcessing() {
         float aberrationIntensity = ship.currentVelocity.magnitude / 150f;
-        if (chromaticAberration != null) chromaticAberration.intensity.value = Mathf.Clamp(aberrationIntensity, 0f, 1f);
+        if (chromaticAberration != null) chromaticAberration.intensity.Override(Mathf.Clamp(aberrationIntensity, 0f, 1f));
 
         float lensDistortionIntensity = -(ship.currentVelocity.magnitude / 10);
-        if (lensDistortion != null) lensDistortion.intensity.value = Mathf.Clamp(lensDistortionIntensity, -20f, 0f);
+        if (lensDistortion != null) lensDistortion.intensity.Override(Mathf.Clamp(lensDistortionIntensity, -20f, 0f));
 
         if (healthData.health < healthData.healthMax && vignette != null && chromaticAberration != null) {
             vignette.color.Override(Color.red);
@@ -148,7 +149,6 @@ public class ShipController : MonoBehaviour
         } else {
             if (vignette != null) vignette.intensity.Override(vignetteDefaultValue);
         }
-
     }
 
     
