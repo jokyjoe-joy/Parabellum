@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Ship : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class Ship : MonoBehaviour
     [HideInInspector] public Vector3 currentVelocity;
     [HideInInspector] public new Rigidbody rigidbody; // FIXME: shouldn't be public later on!
     [HideInInspector] public HealthData healthData;
+    [HideInInspector] public UnityEvent onTargeted;
 
     private void Awake() {
         healthData = GetComponent<HealthData>();

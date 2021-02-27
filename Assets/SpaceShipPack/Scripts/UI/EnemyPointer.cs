@@ -23,12 +23,10 @@ public class EnemyPointer : MonoBehaviour
             return;
         }
 
-        Vector3 toPosition = this.targetPosition;
-        Vector3 fromPosition = Camera.main.transform.position;
+        bool isOffScreen = jokyUtilities.checkIfObjectIsOnScreen(targetPosition);
 
-        Vector3 targetPositionViewPoint = Camera.main.WorldToViewportPoint(this.targetPosition);
-        bool isOffScreen = targetPositionViewPoint.x >= 0 && targetPositionViewPoint.x <= 1 && targetPositionViewPoint.y >= 0 && targetPositionViewPoint.y <= 1 && targetPositionViewPoint.z <= 0;
-
+        // If target is not off-screen, then position pointer on target,
+        // while scaling it according the distance between the camera and the target.
         if (isOffScreen) {
             pointerRectTransform.localScale = new Vector3(0,0,0);
         } else {

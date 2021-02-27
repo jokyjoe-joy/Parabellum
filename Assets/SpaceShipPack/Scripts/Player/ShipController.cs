@@ -15,6 +15,7 @@ public class ShipController : MonoBehaviour
     private float vignetteDefaultValue;
     private CameraShake cameraShake;
     private HealthData healthData;
+    private GameObject currentTarget = null;
     
 
     private void Awake() {
@@ -44,6 +45,26 @@ public class ShipController : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             weaponSystem.ShootGuns(ship.currentVelocity);
+        }
+        if (Input.GetKeyDown("t")) {
+
+            // In case Player doesn't have a target, try to target the closest enemy
+            // which is on-screen.
+            if (currentTarget == null) {
+                // Try to target enemy
+                // Check enemies nearby
+                GameObject [] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+                GameObject target = jokyUtilities.GetClosestGameObject(enemies, transform);
+                bool isOffScreen = jokyUtilities.checkIfObjectIsOnScreen(target.transform.position);
+
+
+                if (!isOffScreen) {
+                    // Invoke onTargeted event on the targeted ship
+                    currentTarget = target;
+                    Ship enemyShip = target.transform.parent.GetComponent<Ship>();
+                    if (enemyShip != null) enemyShip.onTargeted.Invoke();
+                }
+            }
         }
     }
 

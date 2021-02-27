@@ -36,35 +36,6 @@ public class Rocket : MonoBehaviour
         Destroy(gameObject, 10f);
         
     }
-    GameObject GetClosestEnemy(GameObject[] enemies)
-    {
-		// create bestTarget
-        GameObject bestTarget = null;
-		
-		// create closest distance and set it to infinity
-        float closestDistanceSqr = Mathf.Infinity;
-		
-		// get currentPosition
-        Vector3 currentPosition = transform.position;
-		
-		// go through each given target
-        foreach (GameObject potentialTarget in enemies)
-        {
-			// calculate vector towards target
-            Vector3 directionToTarget = potentialTarget.transform.position - currentPosition;
-			// getting magnitude of distance (avoiding square root calculation with sqrMagnitude)
-            float dSqrToTarget = directionToTarget.sqrMagnitude;
-			// if current target is closer than the current closest one
-            if (dSqrToTarget < closestDistanceSqr)
-            {
-				// save this target's distance as closest
-                closestDistanceSqr = dSqrToTarget;
-				// save this target as the bestTarget
-                bestTarget = potentialTarget;
-            }
-        }
-        return bestTarget;
-    }
 
     private void FixedUpdate()
     {
@@ -84,7 +55,7 @@ public class Rocket : MonoBehaviour
                 if (this.isLookingForEnemy) enemies = GameObject.FindGameObjectsWithTag("Enemy");
                 else enemies = GameObject.FindGameObjectsWithTag("PlayerTag");
                 // Find nearest one
-                GameObject target = GetClosestEnemy(enemies);
+                GameObject target = jokyUtilities.GetClosestGameObject(enemies, transform);
 
                 if (target != null)
                 {

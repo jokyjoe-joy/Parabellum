@@ -65,11 +65,16 @@ public class ShipAI : MonoBehaviour
     void Awake() {
         ship = GetComponent<Ship>();
         weaponSystem = GetComponent<WeaponSystem>();
+        ship.onTargeted.AddListener(OnTargeted);
     }
     void Start()
     {
         startingPosition = transform.position;
         roamPosition = GetRoamingPosition();
+    }
+
+    void OnTargeted() {
+        Debug.Log("AI HAS BEEN TARGETED");
     }
 
     void Update() {
@@ -111,6 +116,11 @@ public class ShipAI : MonoBehaviour
         float targetRange = 500f;
         if (Vector3.Distance(transform.position, target.transform.position) < targetRange) {
             state = State.ChaseTarget;
+            // Invoke ship's onTargeted event (if it is a ship).
+            Ship targetShip = target.GetComponent<Ship>();
+            if (targetShip != null) {
+                targetShip.onTargeted.Invoke();
+            }
         }
     }
 }
