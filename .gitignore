@@ -22,6 +22,9 @@
 !*.cs
 !*.cs.meta
 
+# Including backup files
+!*[Bb]ackup*.*
+
 # Including LICENSE and README
-!README.md
-!LICENSE.txt
+!/README.md
+!/LICENSE.txt
