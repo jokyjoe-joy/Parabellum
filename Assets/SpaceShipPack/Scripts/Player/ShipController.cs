@@ -16,6 +16,7 @@ public class ShipController : MonoBehaviour
     private HealthData healthData;
     [HideInInspector] public GameObject currentTarget = null;
     
+    public InventoryObject inventory; //TODO: should this be public?
 
     private void Awake() {
         weaponSystem = GetComponent<WeaponSystem>();
@@ -154,5 +155,9 @@ public class ShipController : MonoBehaviour
     
     private void ShakeCamera() {
         cameraShake.shakeDuration = 0.4f;
+    }
+
+    private void OnApplicationQuit() {
+        inventory.inventoryContainer.Clear();
     }
 }
