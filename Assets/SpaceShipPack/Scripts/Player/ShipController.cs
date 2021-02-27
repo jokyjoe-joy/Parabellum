@@ -134,19 +134,19 @@ public class ShipController : MonoBehaviour
 
         // TODO: Also finish these stuff! And use Override!!!!
         float aberrationIntensity = ship.currentVelocity.magnitude / 150f;
-        chromaticAberration.intensity.value = Mathf.Clamp(aberrationIntensity, 0f, 1f);
+        if (chromaticAberration != null) chromaticAberration.intensity.value = Mathf.Clamp(aberrationIntensity, 0f, 1f);
 
         float lensDistortionIntensity = -(ship.currentVelocity.magnitude / 10);
-        lensDistortion.intensity.value = Mathf.Clamp(lensDistortionIntensity, -20f, 0f);
+        if (lensDistortion != null) lensDistortion.intensity.value = Mathf.Clamp(lensDistortionIntensity, -20f, 0f);
 
-        if (healthData.health < healthData.healthMax) {
+        if (healthData.health < healthData.healthMax && vignette != null && chromaticAberration != null) {
             vignette.color.Override(Color.red);
             float vignetteIntensityValue = (healthData.healthMax - healthData.health) / healthData.healthMax;
             vignette.intensity.Override(Mathf.Clamp(vignetteIntensityValue,vignetteDefaultValue,0.65f));
             
             chromaticAberration.intensity.Override(1f);
         } else {
-            vignette.intensity.Override(vignetteDefaultValue);
+            if (vignette != null) vignette.intensity.Override(vignetteDefaultValue);
         }
 
     }
