@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EnemyPointer : MonoBehaviour
 {
-    public float minSize = 0.2f;
+    public float minSize = 0.1f;
     public float maxSize = 0.3f;
     private Vector3 targetPosition;
     private RectTransform pointerRectTransform;
@@ -30,7 +30,10 @@ public class EnemyPointer : MonoBehaviour
         if (isOffScreen) {
             pointerRectTransform.localScale = new Vector3(0,0,0);
         } else {
-            float sizeByDistance = 150.0f / Vector3.Distance(this.targetPosition, Camera.main.transform.position);
+            // TODO: Create some fancy fast function for this
+            float x = (this.targetPosition - Camera.main.transform.position).sqrMagnitude;
+            float y = 1000.0f;
+            float sizeByDistance = y / x;
             float size = Mathf.Clamp(sizeByDistance, minSize, maxSize);
             pointerRectTransform.localScale = new Vector3(size,size,size);
             Vector3 myPos = Camera.main.WorldToScreenPoint(this.targetPosition);
