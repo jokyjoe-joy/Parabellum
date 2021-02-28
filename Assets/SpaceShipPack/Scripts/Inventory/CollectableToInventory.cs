@@ -31,7 +31,7 @@ public class CollectableToInventory : MonoBehaviour
         ShipController shipController = other.transform.GetComponent<ShipController>();
         if (shipController != null) {
             inventory = shipController.inventory;
-        } else {
+        } else if (other.transform.parent != null) {
             shipController = other.transform.parent.gameObject.GetComponent<ShipController>();
         }
         if (shipController != null) {
