@@ -9,6 +9,15 @@ public class CollectableToInventory : MonoBehaviour
     public float fromDistanceToAddToInventory = 10f;
     public float maxSpeed = 0.8f;
     private InventoryObject inventory = null;
+    private SpriteRenderer spriteRenderer;
+
+    private void Awake() {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    private void Start() {
+        spriteRenderer.sprite = item.itemSprite;
+    }
     
     private void Update() {
         if (closeObjectTransform != null) {
