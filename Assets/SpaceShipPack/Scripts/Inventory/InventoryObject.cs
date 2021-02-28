@@ -5,20 +5,24 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Inventory", menuName = "Inventory System/Inventory")]
 public class InventoryObject : ScriptableObject
 {
-
     public List<InventorySlot> inventoryContainer = new List<InventorySlot>();
     public void AddItem(ItemObject _item, int _amount) {
         bool hasItem = false;
 
+        // Loop through inventory and check if we have item
+        // If we already have the item and it is stackable, add amount to it, then break;
         for (int i = 0 ; i < inventoryContainer.Count; i++) {
             if (inventoryContainer[i].item == _item) {
-                inventoryContainer[i].AddAmount(_amount);
                 hasItem = true;
-                break;
+                if (_item.stackable) {
+                    inventoryContainer[i].AddAmount(_amount);
+                    break;
+                };
             }
         }
 
-        if (!hasItem) {
+        // If we don't have the item or we do and it is not stackable, add it to inventory
+        if (!hasItem || hasItem && !_item.stackable) {
             inventoryContainer.Add(new InventorySlot(_item, _amount));
         }
     }

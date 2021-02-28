@@ -15,6 +15,7 @@ public class ShipController : MonoBehaviour
     private CameraShake cameraShake;
     private HealthData healthData;
     [HideInInspector] public GameObject currentTarget = null;
+    [HideInInspector] public bool shouldCheckControls = true;
     
     public InventoryObject inventory; //TODO: should this be public?
 
@@ -40,6 +41,10 @@ public class ShipController : MonoBehaviour
 
     void Update()
     {
+        
+    }
+
+    private void CheckShootingControls() {
         // Create Shoot event on Left Click
         if (Input.GetMouseButtonDown(0))
         {
@@ -80,8 +85,10 @@ public class ShipController : MonoBehaviour
     }
 
     private void FixedUpdate() {
-        CheckMovementControls();
-        AdjustFOVOnSpeed();
+        if (shouldCheckControls) CheckMovementControls();
+        if (shouldCheckControls) CheckShootingControls();
+        // Note: AdjustFOVOnSpeed check Right Click for zooming
+        if (shouldCheckControls) AdjustFOVOnSpeed();
         AdjustPostProcessing();
     }
 

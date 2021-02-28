@@ -14,6 +14,7 @@ public abstract class ItemObject : ScriptableObject {
     [TextArea(15,20)]
     public string itemDescription;
     public Sprite itemSprite;
+    public bool stackable = true;
 
     public GameObject prefab;
     public ItemType type;
