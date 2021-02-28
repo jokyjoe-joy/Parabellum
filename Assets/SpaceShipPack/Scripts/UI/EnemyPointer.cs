@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class EnemyPointer : MonoBehaviour
 {
-    public float minSize = 0.15f;
-    public float maxSize = 0.5f;
+    public float minSize = 0.2f;
+    public float maxSize = 0.3f;
     private Vector3 targetPosition;
     private RectTransform pointerRectTransform;
 
