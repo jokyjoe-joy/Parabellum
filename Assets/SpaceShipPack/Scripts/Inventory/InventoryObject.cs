@@ -9,10 +9,9 @@ using UnityEditor;
 public class InventoryObject : ScriptableObject
 {
     public string savePath = "/inventory.dat";
-    public ItemDatabaseObject database; // private, so JSON won't save it
+    public ItemDatabaseObject database;
     public Inventory Container;
 
-/* 
     private void OnEnable()
     {
         // Load database
@@ -21,22 +20,22 @@ public class InventoryObject : ScriptableObject
         #else
         database = Resources.Load<ItemDatabaseObject>("ItemDatabase");
         #endif
-    } */
+    }
 
     public void AddItem(Item _item, int _amount)
     {
         // This is mostly a workaround if stackable is set wrong.
         if (_item.buffs.Length > 0)
         {
-            Container.Items.Add(new InventorySlot(_item.Id, _item, _amount));
+            SetFirstEmptySlot(_item, _amount);
             return;
         }
 
         // Loop through inventory and check if we have item
         // If we already have the item and it is stackable, add the amount to it.
-        for (int i = 0 ; i < Container.Items.Count; i++)
+        for (int i = 0 ; i < Container.Items.Length; i++)
         {
-            if (Container.Items[i].item.Id == _item.Id) 
+            if (Container.Items[i].ID == _item.Id) 
             {
                 if (_item.stackable) 
                 {
@@ -47,7 +46,40 @@ public class InventoryObject : ScriptableObject
         }
 
         // If we don't have the item or we do and it is not stackable, add it to inventory
-        Container.Items.Add(new InventorySlot(_item.Id, _item, _amount));
+        SetFirstEmptySlot(_item, _amount);
+    }
+
+    public InventorySlot SetFirstEmptySlot(Item _item, int _amount)
+    {
+        for (int i = 0; i < Container.Items.Length; i++)
+        {
+            if (Container.Items[i].ID <= -1)
+            {
+                Container.Items[i].UpdateSlot(_item.Id, _item, _amount);
+                return Container.Items[i];
+            }
+        }
+        // TODO: If inventory is full
+        return null;
+    }
+
+    public void MoveItem(InventorySlot item1, InventorySlot item2)
+    {
+        InventorySlot temp = new InventorySlot(item2.ID, item2.item, item2.amount);
+        item2.UpdateSlot(item1.ID, item1.item, item1.amount);
+        item1.UpdateSlot(temp.ID, temp.item, temp.amount);
+    }
+
+    public void RemoveItem(Item _item)
+    {
+        // TODO: Drop it in real world
+        for (int i = 0; i < Container.Items.Length; i++)
+        {
+            if (Container.Items[i].item == _item)
+            {
+                Container.Items[i].UpdateSlot(-1, null, 0);
+            }
+        }
     }
 
     public void Save()
@@ -74,6 +106,7 @@ public class InventoryObject : ScriptableObject
         }
     }
 
+    [ContextMenu("Clear")]
     public void Clear() {
         Container = new Inventory();
     }
@@ -82,12 +115,12 @@ public class InventoryObject : ScriptableObject
 [System.Serializable]
 public class Inventory
 {
-    public List<InventorySlot> Items = new List<InventorySlot>();
+    public InventorySlot[] Items = new InventorySlot[24];
 }
 
 [System.Serializable]
 public class InventorySlot {
-    public int ID;
+    public int ID = -1;
     public Item item;
     public int amount;
     public InventorySlot(int _id, Item _item, int _amount)
@@ -96,9 +129,23 @@ public class InventorySlot {
         item = _item;
         amount = _amount;
     }
+    public void UpdateSlot(int _id, Item _item, int _amount)
+    {
+        ID = _id;
+        item = _item;
+        amount = _amount;
+    }
+    public InventorySlot()
+    {
+        ID = -1;
+        item = null;
+        amount = 0;
+    }
 
     public void AddAmount(int value)
     {
         amount += value;
     }
+
+    
 }

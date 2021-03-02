@@ -2,13 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
 public class InventoryUI : MonoBehaviour
 {
+    public MouseItem mouseItem = new MouseItem();
     public InventoryObject inventory;
-    public int spaceBetweenItemsX;
-    public int spaceBetweenItemsY;
-    Dictionary<InventorySlot, RectTransform> itemsDisplayed = new Dictionary<InventorySlot, RectTransform>();
+    public int X_SPACE_BETWEEN_ITEM;
+    public int NUMBER_OF_COLUMN;
+    public int Y_SPACE_BETWEEN_ITEM;
+
+    Dictionary<GameObject, InventorySlot> itemsDisplayed = new Dictionary<GameObject, InventorySlot>();
     private Transform itemSlotContainer;
     private Transform itemSlotTemplate;
     private bool isInventoryActive;
@@ -28,12 +32,20 @@ public class InventoryUI : MonoBehaviour
 
     }
 
+    private void Start() {
+        CreateSlots();
+    }
+
     void Update()
     {
         if (Input.GetKeyDown("i")) {
             SwitchInventoryVisibleInvisible();
-            UpdateInventoryDisplay();
         }
+        if (isInventoryActive)
+        {
+            UpdateSlots();
+        }
+        
     }
 
     public void SwitchInventoryVisibleInvisible()
@@ -51,66 +63,133 @@ public class InventoryUI : MonoBehaviour
             Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = true;
             isInventoryActive = true;
+            UpdateSlots();
         }
 
         // Setting children active based on isInventoryActive
         foreach (Transform child in transform)
             child.gameObject.SetActive(isInventoryActive);
-        
+        foreach (Transform child in itemSlotContainer)
+            child.gameObject.SetActive(isInventoryActive);
+        itemSlotTemplate.gameObject.SetActive(false);
 
         // Enable or disable player ship movement
         playerShipController.shouldCheckControls = !isInventoryActive;
-
-
     }
- 
-    public void UpdateInventoryDisplay()
-    {
-        // Init grid values (starting in right upper corner)
-        int x = 0;
-        int y = 0;
-        // TODO: Set max items in inventory and display a scrollbar
-        // if we have more than what can be in the UI at once
 
-        // Loop through inventory and check if we already have the item's icon instantiated.
-        // If we do, only change the item's name, amount, etc..., then increment the grid's x value.
-        // If we don't, instantiate it.
-        for (int i = 0; i < inventory.Container.Items.Count; i++)
+    public void UpdateSlots()
+    {
+        foreach (KeyValuePair<GameObject, InventorySlot> _slot in itemsDisplayed)
         {
-            if (itemsDisplayed.ContainsKey(inventory.Container.Items[i]))
+            Text text = _slot.Key.transform.Find("amount").GetComponent<Text>();
+            Image image = _slot.Key.transform.Find("image").GetComponent<Image>();
+
+            // If has an item
+            if (_slot.Value.ID >= 0)
             {
-                // If we already have the item, update its name, image and amount
-                RectTransform itemSlotRectTransform = itemsDisplayed[inventory.Container.Items[i]];
-                Image itemSlotSprite = itemSlotRectTransform.transform.Find("image").GetComponent<Image>();
-                itemSlotSprite.sprite = inventory.Container.Items[i].item.sprite;
-                Text itemSlotName = itemSlotRectTransform.transform.Find("name").GetComponent<Text>();
-                itemSlotName.text = inventory.Container.Items[i].item.Name;
-                Text itemSlotAmount = itemSlotRectTransform.transform.Find("amount").GetComponent<Text>();
-                itemSlotAmount.text = inventory.Container.Items[i].amount.ToString();
-                x++;
-            } 
+                image.sprite = inventory.database.GetItem[_slot.Value.item.Id].itemSprite;
+                text.text = _slot.Value.amount == 1 ? "" : _slot.Value.amount.ToString();
+                
+                foreach (Transform child in _slot.Key.transform)
+                {
+                    child.gameObject.SetActive(true);
+                }
+            }
             else
             {
-                // If we don't have this item instantiated in UI, then instantiate it, set it active and position it
-                RectTransform itemSlotRectTransform = Instantiate(itemSlotTemplate, itemSlotContainer).GetComponent<RectTransform>();
-                itemSlotRectTransform.gameObject.SetActive(true);
-                itemSlotRectTransform.anchoredPosition = new Vector2(x * spaceBetweenItemsX, y * spaceBetweenItemsY);
-
-                Image itemSlotSprite = itemSlotRectTransform.transform.Find("image").GetComponent<Image>();
-                itemSlotSprite.sprite = inventory.Container.Items[i].item.sprite;
-                Text itemSlotName = itemSlotRectTransform.transform.Find("name").GetComponent<Text>();
-                itemSlotName.text = inventory.Container.Items[i].item.Name;
-                Text itemSlotAmount = itemSlotRectTransform.transform.Find("amount").GetComponent<Text>();
-                itemSlotAmount.text = inventory.Container.Items[i].amount.ToString();
-                
-                itemsDisplayed.Add(inventory.Container.Items[i], itemSlotRectTransform);
-                x++;
+                image.gameObject.SetActive(false);
+                text.gameObject.SetActive(false);
             }
-            if (x > 3)
-            {
-                x = 0;
-                y--; // Decrementing, because we are starting in the right upper corner
-            }
+            
         }
     }
+ 
+    public void CreateSlots()
+    {
+        itemsDisplayed = new Dictionary<GameObject, InventorySlot>();
+        for (int i = 0; i < inventory.Container.Items.Length; i++)
+        {
+            var obj = Instantiate(itemSlotTemplate, Vector3.zero, Quaternion.identity, itemSlotContainer).gameObject;
+            obj.GetComponent<RectTransform>().localPosition = GetPosition(i);
+
+            AddEvent(obj, EventTriggerType.PointerExit, delegate { OnExit(obj); });
+            AddEvent(obj, EventTriggerType.PointerEnter, delegate { OnEnter(obj); });
+            AddEvent(obj, EventTriggerType.BeginDrag, delegate { OnDragStart(obj); });
+            AddEvent(obj, EventTriggerType.EndDrag, delegate { OnDragEnd(obj); });
+            AddEvent(obj, EventTriggerType.Drag, delegate { OnDrag(obj); });
+
+            itemsDisplayed.Add(obj, inventory.Container.Items[i]);
+        }
+    }
+
+    private void AddEvent(GameObject obj, EventTriggerType type, UnityAction<BaseEventData> action)
+    {
+        EventTrigger trigger = obj.GetComponent<EventTrigger>();
+        var eventTrigger = new EventTrigger.Entry();
+        eventTrigger.eventID = type;
+        eventTrigger.callback.AddListener(action);
+        trigger.triggers.Add(eventTrigger);
+    }
+
+    public Vector3 GetPosition(int i)
+    {
+        return new Vector3(X_SPACE_BETWEEN_ITEM * (i % NUMBER_OF_COLUMN), (-Y_SPACE_BETWEEN_ITEM * (i/NUMBER_OF_COLUMN)), 0f);
+    }
+
+    public void OnEnter(GameObject obj)
+    {
+        mouseItem.hoverObj = obj;
+        if (itemsDisplayed.ContainsKey(obj))
+            mouseItem.hoverItem = itemsDisplayed[obj];
+    }
+    public void OnExit(GameObject obj)
+    {
+        mouseItem.hoverObj = null;
+        mouseItem.hoverItem = null;
+    }
+    public void OnDragStart(GameObject obj)
+    {
+        var mouseObject = new GameObject();
+        var rt = mouseObject.AddComponent<RectTransform>();
+        rt.sizeDelta = new Vector2(50, 50);
+        mouseObject.transform.SetParent(transform.parent);
+
+        if (itemsDisplayed[obj].ID >= 0)
+        {
+            var img = mouseObject.AddComponent<Image>();
+            img.sprite = inventory.database.GetItem[itemsDisplayed[obj].ID].itemSprite;
+            img.raycastTarget = false;
+        }
+        mouseItem.obj = mouseObject;
+        mouseItem.item = itemsDisplayed[obj];
+    }
+    public void OnDragEnd(GameObject obj)
+    {
+        if (mouseItem.hoverObj)
+        {
+            inventory.MoveItem(itemsDisplayed[obj], itemsDisplayed[mouseItem.hoverObj]);
+        }
+        else
+        {
+            inventory.RemoveItem(itemsDisplayed[obj].item);
+
+        }
+        Destroy(mouseItem.obj);
+        mouseItem.item = null;
+    }
+    public void OnDrag(GameObject obj)
+    {
+        if (mouseItem.obj != null)
+        {
+            mouseItem.obj.GetComponent<RectTransform>().position = Input.mousePosition;
+        }
+    }
+}
+
+public class MouseItem
+{   
+    public GameObject obj;
+    public InventorySlot item;
+    public InventorySlot hoverItem;
+    public GameObject hoverObj;
 }
