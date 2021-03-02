@@ -190,6 +190,6 @@ public class ShipController : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        inventory.inventoryContainer.Clear();
+        inventory.Container.Items.Clear();
     }
 }

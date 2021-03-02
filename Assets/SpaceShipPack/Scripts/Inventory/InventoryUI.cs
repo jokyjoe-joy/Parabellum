@@ -63,7 +63,7 @@ public class InventoryUI : MonoBehaviour
 
 
     }
-
+ 
     public void UpdateInventoryDisplay()
     {
         // Init grid values (starting in right upper corner)
@@ -75,18 +75,18 @@ public class InventoryUI : MonoBehaviour
         // Loop through inventory and check if we already have the item's icon instantiated.
         // If we do, only change the item's name, amount, etc..., then increment the grid's x value.
         // If we don't, instantiate it.
-        for (int i = 0; i < inventory.inventoryContainer.Count; i++)
+        for (int i = 0; i < inventory.Container.Items.Count; i++)
         {
-            if (itemsDisplayed.ContainsKey(inventory.inventoryContainer[i]))
+            if (itemsDisplayed.ContainsKey(inventory.Container.Items[i]))
             {
                 // If we already have the item, update its name, image and amount
-                RectTransform itemSlotRectTransform = itemsDisplayed[inventory.inventoryContainer[i]];
+                RectTransform itemSlotRectTransform = itemsDisplayed[inventory.Container.Items[i]];
                 Image itemSlotSprite = itemSlotRectTransform.transform.Find("image").GetComponent<Image>();
-                itemSlotSprite.sprite = inventory.inventoryContainer[i].item.itemSprite;
+                itemSlotSprite.sprite = inventory.Container.Items[i].item.sprite;
                 Text itemSlotName = itemSlotRectTransform.transform.Find("name").GetComponent<Text>();
-                itemSlotName.text = inventory.inventoryContainer[i].item.itemName;
+                itemSlotName.text = inventory.Container.Items[i].item.Name;
                 Text itemSlotAmount = itemSlotRectTransform.transform.Find("amount").GetComponent<Text>();
-                itemSlotAmount.text = inventory.inventoryContainer[i].amount.ToString();
+                itemSlotAmount.text = inventory.Container.Items[i].amount.ToString();
                 x++;
             } 
             else
@@ -97,16 +97,16 @@ public class InventoryUI : MonoBehaviour
                 itemSlotRectTransform.anchoredPosition = new Vector2(x * spaceBetweenItemsX, y * spaceBetweenItemsY);
 
                 Image itemSlotSprite = itemSlotRectTransform.transform.Find("image").GetComponent<Image>();
-                itemSlotSprite.sprite = inventory.inventoryContainer[i].item.itemSprite;
+                itemSlotSprite.sprite = inventory.Container.Items[i].item.sprite;
                 Text itemSlotName = itemSlotRectTransform.transform.Find("name").GetComponent<Text>();
-                itemSlotName.text = inventory.inventoryContainer[i].item.itemName;
+                itemSlotName.text = inventory.Container.Items[i].item.Name;
                 Text itemSlotAmount = itemSlotRectTransform.transform.Find("amount").GetComponent<Text>();
-                itemSlotAmount.text = inventory.inventoryContainer[i].amount.ToString();
+                itemSlotAmount.text = inventory.Container.Items[i].amount.ToString();
                 
-                itemsDisplayed.Add(inventory.inventoryContainer[i], itemSlotRectTransform);
+                itemsDisplayed.Add(inventory.Container.Items[i], itemSlotRectTransform);
                 x++;
             }
-            if (x > 4)
+            if (x > 3)
             {
                 x = 0;
                 y--; // Decrementing, because we are starting in the right upper corner

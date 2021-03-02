@@ -6,11 +6,13 @@ using System.IO;
 using UnityEditor;
 
 [CreateAssetMenu(fileName = "New Inventory", menuName = "Inventory System/Inventory")]
-public class InventoryObject : ScriptableObject, ISerializationCallbackReceiver
+public class InventoryObject : ScriptableObject
 {
     public string savePath = "/inventory.dat";
-    private ItemDatabaseObject database; // private, so JSON won't save it
+    public ItemDatabaseObject database; // private, so JSON won't save it
+    public Inventory Container;
 
+/* 
     private void OnEnable()
     {
         // Load database
@@ -19,33 +21,40 @@ public class InventoryObject : ScriptableObject, ISerializationCallbackReceiver
         #else
         database = Resources.Load<ItemDatabaseObject>("ItemDatabase");
         #endif
-    }
+    } */
 
-    public List<InventorySlot> inventoryContainer = new List<InventorySlot>();
-    public void AddItem(ItemObject _item, int _amount)
+    public void AddItem(Item _item, int _amount)
     {
+        // This is mostly a workaround if stackable is set wrong.
+        if (_item.buffs.Length > 0)
+        {
+            Container.Items.Add(new InventorySlot(_item.Id, _item, _amount));
+            return;
+        }
+
         // Loop through inventory and check if we have item
         // If we already have the item and it is stackable, add the amount to it.
-        for (int i = 0 ; i < inventoryContainer.Count; i++)
+        for (int i = 0 ; i < Container.Items.Count; i++)
         {
-            if (inventoryContainer[i].item == _item) 
+            if (Container.Items[i].item.Id == _item.Id) 
             {
                 if (_item.stackable) 
                 {
-                    inventoryContainer[i].AddAmount(_amount);
+                    Container.Items[i].AddAmount(_amount);
                     return;
                 };
             }
         }
 
         // If we don't have the item or we do and it is not stackable, add it to inventory
-        inventoryContainer.Add(new InventorySlot(database.GetId[_item], _item, _amount));
+        Container.Items.Add(new InventorySlot(_item.Id, _item, _amount));
     }
 
     public void Save()
     {
         // Turn this whole InventoryObject to JSON and save it to savePath.
-        string saveData = JsonUtility.ToJson(this, true);
+        //string saveData = JsonUtility.ToJson(this, true);
+        string saveData = JsonUtility.ToJson(Container, true);
         BinaryFormatter bf = new BinaryFormatter();
         FileStream file = File.Create(string.Concat(Application.persistentDataPath, savePath));
         bf.Serialize(file, saveData);
@@ -59,31 +68,29 @@ public class InventoryObject : ScriptableObject, ISerializationCallbackReceiver
         {
             BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(string.Concat(Application.persistentDataPath, savePath), FileMode.Open);
-            JsonUtility.FromJsonOverwrite(bf.Deserialize(file).ToString(), this);
+            //JsonUtility.FromJsonOverwrite(bf.Deserialize(file).ToString(), this);
+            JsonUtility.FromJsonOverwrite(bf.Deserialize(file).ToString(), Container);
             file.Close();
         }
     }
 
-    public void OnAfterDeserialize()
-    {
-        // TODO: Why are we doing this?
-        for (int i = 0; i < inventoryContainer.Count; i++)
-            inventoryContainer[i].item = database.GetItem[inventoryContainer[i].ID];
+    public void Clear() {
+        Container = new Inventory();
     }
+}
 
-    public void OnBeforeSerialize()
-    {
-
-    }
-
+[System.Serializable]
+public class Inventory
+{
+    public List<InventorySlot> Items = new List<InventorySlot>();
 }
 
 [System.Serializable]
 public class InventorySlot {
     public int ID;
-    public ItemObject item;
+    public Item item;
     public int amount;
-    public InventorySlot(int _id, ItemObject _item, int _amount)
+    public InventorySlot(int _id, Item _item, int _amount)
     {
         ID = _id;
         item = _item;
