@@ -7,7 +7,9 @@ public class HealthBarPercent : MonoBehaviour
 {
     private HealthData playerHealthData;
     private Text healthPercentText;
-    private void Awake() {
+    
+    private void Awake()
+    {
         GameObject player = GameObject.FindGameObjectWithTag("PlayerTag").transform.parent.gameObject;
         playerHealthData = player.GetComponent<HealthData>();
         healthPercentText = GetComponent<Text>();

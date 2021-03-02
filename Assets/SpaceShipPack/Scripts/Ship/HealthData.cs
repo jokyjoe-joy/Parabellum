@@ -9,13 +9,15 @@ public class HealthData : MonoBehaviour
     public float healthMax = 100f;
     [HideInInspector] public UnityEvent onDamage;
     
-    public void Damage(float damageAmount) {
+    public void Damage(float damageAmount)
+    {
         health -= damageAmount;
         if (health < 0) health = 0;
         onDamage.Invoke();
     }
 
-    public void Heal(float healAmount) {
+    public void Heal(float healAmount)
+    {
         health += healAmount;
         if (health > healthMax) health = healthMax;
     }

@@ -16,31 +16,29 @@ public class Ship : MonoBehaviour
     public float explosionScale = 1;
 
     [HideInInspector] public Vector3 currentVelocity;
-    [HideInInspector] public new Rigidbody rigidbody; // FIXME: shouldn't be public later on!
+    [HideInInspector] public new Rigidbody rigidbody; // FIXME: shouldn't be public later on?
     [HideInInspector] public HealthData healthData;
     [HideInInspector] public UnityEvent onTargeted;
 
-    private void Awake() {
+    private void Awake()
+    {
         healthData = GetComponent<HealthData>();
         rigidbody = GetComponent<Rigidbody>();
     }
 
-    private void Update() {
-        if (healthData.health <= 0)
-        {
-            Explode();
-        }
+    private void Update() 
+    {
+        if (healthData.health <= 0) Explode();
     }
 
-    private void FixedUpdate() {
+    private void FixedUpdate()
+    {
         currentVelocity = rigidbody.velocity;
     }
 
     public void ThrustForward()
     {
-        if (currentVelocity.magnitude < MaxSpeed) {
-            rigidbody.AddForce(transform.forward * forwardSpeed * 100 * Time.deltaTime);
-        }
+        if (currentVelocity.magnitude < MaxSpeed) rigidbody.AddForce(transform.forward * forwardSpeed * 100 * Time.deltaTime);
 
     }
 
@@ -74,7 +72,8 @@ public class Ship : MonoBehaviour
         rigidbody.AddTorque(-rigidbody.angularVelocity.normalized * 200 * RotationSpeed * Time.deltaTime);
     }
 
-    private void Explode() {
+    private void Explode()
+    {
         /* 
         Checking nearby colliders and adding explosion force to their rigidbodies (if they have)
         Also adding rigidbodies to children and then explosion force to them
@@ -86,7 +85,8 @@ public class Ship : MonoBehaviour
         explosion.transform.localScale = transform.localScale * explosionScale;
         Destroy(explosion, 2f);
 
-        foreach(Transform child in transform) {
+        foreach(Transform child in transform)
+        {
             Rigidbody rb = child.gameObject.AddComponent<Rigidbody>();
             rb.useGravity = false;
             child.gameObject.name = "SCRAP";
@@ -94,23 +94,20 @@ public class Ship : MonoBehaviour
 
         explosionRadius *= transform.localScale.x;
 
-        foreach (Collider hit in colliders) {
+        foreach (Collider hit in colliders)
+        {
             Rigidbody rb = hit.GetComponent<Rigidbody>();
-
-            if (rb != null) {
-                rb.AddExplosionForce(explosionPower, transform.position, explosionRadius, 0);
-            }
+            if (rb != null) rb.AddExplosionForce(explosionPower, transform.position, explosionRadius, 0);
         }
 
         // Destroy attached tags if there are any.
-        foreach(Transform child in transform) {
-            if (child.gameObject.CompareTag("Enemy")) {
-                Destroy(child.gameObject);
-            }
+        foreach(Transform child in transform)
+        {
+            if (child.gameObject.CompareTag("Enemy")) Destroy(child.gameObject);
+            
         }
 
         transform.DetachChildren();
         Destroy(gameObject);
     }
-
 }

@@ -11,11 +11,13 @@ public class HealthBar : MonoBehaviour
         bar = transform.Find("Bar");
     }
 
-    private void Update() {
+    private void Update()
+    {
         setSize(healthData.health / healthData.healthMax);
     }
 
-    public void setSize(float sizeNormalized) {
+    public void setSize(float sizeNormalized)
+    {
         bar.localScale = new Vector3(sizeNormalized, 1f);
     }
 }

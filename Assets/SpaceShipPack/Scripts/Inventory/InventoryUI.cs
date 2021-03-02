@@ -14,7 +14,8 @@ public class InventoryUI : MonoBehaviour
     private bool isInventoryActive;
     private ShipController playerShipController;
 
-    private void Awake() {
+    private void Awake()
+    {
         itemSlotContainer = transform.Find("itemSlotContainer");
         itemSlotTemplate = itemSlotContainer.Find("itemSlotTemplate");
         // Deactivating inventory UI if active
@@ -35,13 +36,17 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
-    public void SwitchInventoryVisibleInvisible() {
-        if (isInventoryActive) {
+    public void SwitchInventoryVisibleInvisible()
+    {
+        if (isInventoryActive)
+        {
             // Hide cursor & inventory
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             isInventoryActive = false;
-        } else {
+        } 
+        else 
+        {
             // Show cursor & inventory
             Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = true;
@@ -49,17 +54,18 @@ public class InventoryUI : MonoBehaviour
         }
 
         // Setting children active based on isInventoryActive
-        foreach (Transform child in transform) {
+        foreach (Transform child in transform)
             child.gameObject.SetActive(isInventoryActive);
-        }
+        
 
-        // Enable/disable player ship movement
+        // Enable or disable player ship movement
         playerShipController.shouldCheckControls = !isInventoryActive;
 
 
     }
 
-    public void UpdateInventoryDisplay() {
+    public void UpdateInventoryDisplay()
+    {
         // Init grid values (starting in right upper corner)
         int x = 0;
         int y = 0;
@@ -69,8 +75,10 @@ public class InventoryUI : MonoBehaviour
         // Loop through inventory and check if we already have the item's icon instantiated.
         // If we do, only change the item's name, amount, etc..., then increment the grid's x value.
         // If we don't, instantiate it.
-        for (int i = 0; i < inventory.inventoryContainer.Count; i++) {
-            if (itemsDisplayed.ContainsKey(inventory.inventoryContainer[i])) {
+        for (int i = 0; i < inventory.inventoryContainer.Count; i++)
+        {
+            if (itemsDisplayed.ContainsKey(inventory.inventoryContainer[i]))
+            {
                 // If we already have the item, update its name, image and amount
                 RectTransform itemSlotRectTransform = itemsDisplayed[inventory.inventoryContainer[i]];
                 Image itemSlotSprite = itemSlotRectTransform.transform.Find("image").GetComponent<Image>();
@@ -80,7 +88,9 @@ public class InventoryUI : MonoBehaviour
                 Text itemSlotAmount = itemSlotRectTransform.transform.Find("amount").GetComponent<Text>();
                 itemSlotAmount.text = inventory.inventoryContainer[i].amount.ToString();
                 x++;
-            } else {
+            } 
+            else
+            {
                 // If we don't have this item instantiated in UI, then instantiate it, set it active and position it
                 RectTransform itemSlotRectTransform = Instantiate(itemSlotTemplate, itemSlotContainer).GetComponent<RectTransform>();
                 itemSlotRectTransform.gameObject.SetActive(true);
@@ -96,7 +106,8 @@ public class InventoryUI : MonoBehaviour
                 itemsDisplayed.Add(inventory.inventoryContainer[i], itemSlotRectTransform);
                 x++;
             }
-            if (x > 4) {
+            if (x > 4)
+            {
                 x = 0;
                 y--; // Decrementing, because we are starting in the right upper corner
             }

@@ -9,27 +9,27 @@ public class EnemyPointer : MonoBehaviour
     private Vector3 targetPosition;
     private RectTransform pointerRectTransform;
 
-    private void Awake() {
-
+    private void Awake()
+    {
         pointerRectTransform = GetComponent<RectTransform>();
     }
 
-    public void SetTarget(Vector3 targetPosition) {
+    public void SetTarget(Vector3 targetPosition)
+    {
         this.targetPosition = targetPosition;
     }
 
-    private void Update() {
-        if (targetPosition == null) {
-            return;
-        }
+    private void Update()
+    {
+        if (targetPosition == null) return;
 
         bool isOffScreen = jokyUtilities.checkIfObjectIsOffScreen(targetPosition);
 
         // If target is not off-screen, then position pointer on target,
         // while scaling it according the distance between the camera and the target.
-        if (isOffScreen) {
-            pointerRectTransform.localScale = new Vector3(0,0,0);
-        } else {
+        if (isOffScreen) pointerRectTransform.localScale = new Vector3(0,0,0);
+        else
+        {
             // TODO: Create some fancy fast function for this
             float x = (this.targetPosition - Camera.main.transform.position).sqrMagnitude;
             float y = 1000.0f;

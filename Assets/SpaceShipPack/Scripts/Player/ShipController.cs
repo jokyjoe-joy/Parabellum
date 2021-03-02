@@ -19,7 +19,8 @@ public class ShipController : MonoBehaviour
     
     public InventoryObject inventory; //TODO: should this be public?
 
-    private void Awake() {
+    private void Awake()
+    {
         weaponSystem = GetComponent<WeaponSystem>();
         healthData = GetComponent<HealthData>();
         postProcessVolume = Camera.main.GetComponent<PostProcessVolume>();
@@ -53,47 +54,56 @@ public class ShipController : MonoBehaviour
         }
     }
 
-    private void CheckShootingControls() {
+    private void CheckShootingControls()
+    {
         // Create Shoot event on Left Click
         if (Input.GetMouseButtonDown(0))
         {
             weaponSystem.ShootGuns(ship.currentVelocity);
         }
-        if (Input.GetKeyDown("t")) {
+        if (Input.GetKeyDown("t"))
+        {
 
             // Try to target enemy
             // Check enemies nearby
             GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
             GameObject target = jokyUtilities.GetClosestGameObject(enemies, transform);
             
-            if (target != null) {
+            if (target != null)
+            {
                 // FIXME: isOffScreen doesn't work properly! Sometimes when object is offScreen
                 // it still returns false
                 bool isOffScreen = jokyUtilities.checkIfObjectIsOffScreen(target.transform.position);
                 // In case Player doesn't have a target, try to target the closest enemy
                 // which is on-screen.
-                if (currentTarget == null && !isOffScreen) {
+                if (currentTarget == null && !isOffScreen)
+                {
                     // Invoke onTargeted event on the targeted ship
                     // Below parent is needed, as enemyTag is its child gameobject
                     currentTarget = target.transform.parent.gameObject;
                     Ship enemyShip = target.transform.parent.GetComponent<Ship>();
                     if (enemyShip != null) enemyShip.onTargeted.Invoke();
-                } else {
+                }
+                else
+                {
                     // If there is only one enemy nearby, then turn off targeting
-                    if (enemies.Length == 1) {
+                    if (enemies.Length == 1)
+                    {
                         currentTarget = null;
-                    } else {
+                    }
+                    else
+                    {
                         // TODO: This should not select randomly, but selecting in order of
                         // distance (first the ones close, then the ones far)
                         currentTarget = enemies[Random.Range(0,enemies.Length)].transform.parent.gameObject;
                     }
                 }
             }
-
         }
     }
 
-    private void FixedUpdate() {
+    private void FixedUpdate()
+    {
         if (shouldCheckControls) CheckMovementControls();
         if (shouldCheckControls) CheckShootingControls();
         // Note: AdjustFOVOnSpeed check Right Click for zooming
@@ -126,9 +136,6 @@ public class ShipController : MonoBehaviour
         {
             ship.Stabilise();
         }
-
-
-
     }
 
     private void AdjustFOVOnSpeed()
@@ -153,30 +160,36 @@ public class ShipController : MonoBehaviour
         Camera.main.fieldOfView = currentFOV;
     }
 
-    private void AdjustPostProcessing() {
+    private void AdjustPostProcessing() 
+    {
         float aberrationIntensity = ship.currentVelocity.magnitude / 150f;
         if (chromaticAberration != null) chromaticAberration.intensity.Override(Mathf.Clamp(aberrationIntensity, 0f, 1f));
 
         float lensDistortionIntensity = -(ship.currentVelocity.magnitude / 10);
         if (lensDistortion != null) lensDistortion.intensity.Override(Mathf.Clamp(lensDistortionIntensity, -20f, 0f));
 
-        if (healthData.health < healthData.healthMax && vignette != null && chromaticAberration != null) {
+        if (healthData.health < healthData.healthMax && vignette != null && chromaticAberration != null)
+        {
             vignette.color.Override(Color.red);
             float vignetteIntensityValue = (healthData.healthMax - healthData.health) / healthData.healthMax;
             vignette.intensity.Override(Mathf.Clamp(vignetteIntensityValue,vignetteDefaultValue,0.65f));
             
             chromaticAberration.intensity.Override(1f);
-        } else {
+        }
+        else
+        {
             if (vignette != null) vignette.intensity.Override(vignetteDefaultValue);
         }
     }
 
     
-    private void ShakeCamera() {
+    private void ShakeCamera()
+    {
         cameraShake.shakeDuration = 0.4f;
     }
 
-    private void OnApplicationQuit() {
+    private void OnApplicationQuit()
+    {
         inventory.inventoryContainer.Clear();
     }
 }

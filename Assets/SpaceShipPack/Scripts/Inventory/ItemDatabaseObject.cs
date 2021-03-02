@@ -9,7 +9,9 @@ public class ItemDatabaseObject : ScriptableObject, ISerializationCallbackReceiv
     public Dictionary<ItemObject, int> GetId = new Dictionary<ItemObject, int>();
     public Dictionary<int, ItemObject> GetItem = new Dictionary<int, ItemObject>();
 
-    public void OnAfterDeserialize() {
+    public void OnAfterDeserialize()
+    {
+        // TODO: What is this actually?
         GetId = new Dictionary<ItemObject, int>();
         GetItem = new Dictionary<int, ItemObject>();
         for (int i = 0; i < Items.Length; i++)
@@ -19,7 +21,8 @@ public class ItemDatabaseObject : ScriptableObject, ISerializationCallbackReceiv
         }
     }
 
-    public void OnBeforeSerialize() {
+    public void OnBeforeSerialize()
+    {
 
     }
 }

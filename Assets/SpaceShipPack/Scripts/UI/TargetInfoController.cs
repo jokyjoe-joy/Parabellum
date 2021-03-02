@@ -10,7 +10,8 @@ public class TargetInfoController : MonoBehaviour
     private GameObject target;
     private ShipController playerShipController;
 
-    private void Awake() {
+    private void Awake()
+    {
         targetName = transform.Find("targetName").GetComponent<Text>();
         targetHealth = transform.Find("targetHealth").GetComponent<Text>();
         playerShipController = GameObject.FindGameObjectWithTag("PlayerTag").transform.parent.GetComponent<ShipController>();
@@ -19,19 +20,18 @@ public class TargetInfoController : MonoBehaviour
     void Update()
     {
         target = playerShipController.currentTarget;
-        if (target != null) {
+        if (target != null)
+        {
             // Enable children and set text accordingly
-            foreach (Transform child in transform) {
-                child.gameObject.SetActive(true);
-            }
+            foreach (Transform child in transform) child.gameObject.SetActive(true);
             targetName.text = target.GetComponent<ShipAI>().nameOfAI;
             HealthData targetHealthData = target.GetComponent<HealthData>();
             targetHealth.text = (targetHealthData.health / targetHealthData.healthMax * 100).ToString() + "%";
-        } else {
+        } 
+        else 
+        {
             // Disable children
-            foreach (Transform child in transform) {
-                child.gameObject.SetActive(false);
-            }
+            foreach (Transform child in transform) child.gameObject.SetActive(false);
         }
     }
 }

@@ -2,13 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum ItemType {
+public enum ItemType
+{
     Food,
     Equipment,
     Default
 }
 
-public abstract class ItemObject : ScriptableObject {
+public abstract class ItemObject : ScriptableObject
+{
     
     public string itemName;
     [TextArea(15,20)]

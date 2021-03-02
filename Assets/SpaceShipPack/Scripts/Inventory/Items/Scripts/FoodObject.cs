@@ -6,7 +6,9 @@ using UnityEngine;
 public class FoodObject : ItemObject
 {
     public int restoreHealthValue;
-    private void Awake() {
+    
+    private void Awake()
+    {
         type = ItemType.Food;
     }
 }

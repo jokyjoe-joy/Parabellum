@@ -34,7 +34,8 @@ public class jokyUtilities : MonoBehaviour
         return bestTarget;
     }
 
-    public static bool checkIfObjectIsOffScreen(Vector3 targetPosition) {
+    public static bool checkIfObjectIsOffScreen(Vector3 targetPosition)
+    {
         Vector3 fromPosition = Camera.main.transform.position;
         Vector3 targetPositionViewPoint = Camera.main.WorldToViewportPoint(targetPosition);
         return targetPositionViewPoint.x >= 0 && targetPositionViewPoint.x <= 1 && targetPositionViewPoint.y >= 0 && targetPositionViewPoint.y <= 1 && targetPositionViewPoint.z <= 0;

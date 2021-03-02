@@ -18,15 +18,18 @@ public class ShipAI : MonoBehaviour
     private WeaponSystem weaponSystem;
 
     // Returns random normalized vector
-    private Vector3 GetRandomDirection() {
+    private Vector3 GetRandomDirection()
+    {
         return new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f)).normalized;
     }
 
-    private Vector3 GetRoamingPosition() {
+    private Vector3 GetRoamingPosition()
+    {
         return startingPosition + GetRandomDirection() * Random.Range(100f, 500f);
     }
 
-    private void MoveTo(Vector3 target) {
+    private void MoveTo(Vector3 target)
+    {
         /* 
         // TODO: Finish this pseudo-code :)
         float neededDistanceFromTarget;
@@ -47,24 +50,32 @@ public class ShipAI : MonoBehaviour
         var rotation = Quaternion.LookRotation (target - transform.position);
         transform.rotation = Quaternion.Slerp (transform.rotation, rotation, Time.deltaTime * DampingOnTurning);
         // If looking at target, do this:
-        if (Quaternion.Angle(transform.rotation, rotation) < 5) {
+        if (Quaternion.Angle(transform.rotation, rotation) < 5)
+        {
             // Then move towards target
             Vector3 vectorTowardsTarget = (target - transform.position);
-            if (vectorTowardsTarget.magnitude >= 1) {
+            if (vectorTowardsTarget.magnitude >= 1)
+            {
                 ship.ThrustForward();
-            } else {
+            } 
+            else
+            {
                 // Stopping.
                 ship.rigidbody.velocity = new Vector3(0,0,0);
             }
-        } else {
-            if (ship.rigidbody.velocity.magnitude > 20) {
+        }
+        else
+        {
+            if (ship.rigidbody.velocity.magnitude > 20)
+            {
                 // Stopping.
                 ship.rigidbody.velocity = new Vector3(0,0,0);
             }
         }
     }
 
-    void Awake() {
+    void Awake()
+    {
         ship = GetComponent<Ship>();
         weaponSystem = GetComponent<WeaponSystem>();
         ship.onTargeted.AddListener(OnTargeted);
@@ -75,18 +86,22 @@ public class ShipAI : MonoBehaviour
         roamPosition = GetRoamingPosition();
     }
 
-    void OnTargeted() {
+    void OnTargeted() 
+    {
         state = State.ChaseTarget;
     }
 
-    void Update() {
-        switch (state) {
+    void Update()
+    {
+        switch (state) 
+        {
             default:
             case State.Roaming:
                 MoveTo(roamPosition);
                 Debug.DrawLine(transform.position, roamPosition, Color.green);
                 float reachedPositionDistance = 10f;
-                if (Vector3.Distance(transform.position, roamPosition) < reachedPositionDistance) {
+                if (Vector3.Distance(transform.position, roamPosition) < reachedPositionDistance) 
+                {
                     // Reached roam position, thus getting new roam position
                     roamPosition = GetRoamingPosition();
                 }
@@ -103,10 +118,13 @@ public class ShipAI : MonoBehaviour
                 transform.rotation = Quaternion.Slerp (transform.rotation, rotation, Time.deltaTime * DampingOnTurning);
                 
                 float shootingRange = 200f;
-                if (Vector3.Distance(player.transform.position, transform.position) < shootingRange) {
+                if (Vector3.Distance(player.transform.position, transform.position) < shootingRange) 
+                {
                     ship.Stabilise();
                     weaponSystem.ShootGuns(ship.currentVelocity);
-                } else {
+                } 
+                else 
+                {
                     Debug.DrawLine(transform.position, player.transform.position, Color.green);
                     MoveTo(player.transform.position);
                 }
@@ -114,15 +132,16 @@ public class ShipAI : MonoBehaviour
         }
     }
 
-    void FindTarget(GameObject target) {
+    void FindTarget(GameObject target) 
+    {
         float targetRange = 500f;
-        if (Vector3.Distance(transform.position, target.transform.position) < targetRange) {
+        if (Vector3.Distance(transform.position, target.transform.position) < targetRange) 
+        {
             state = State.ChaseTarget;
             // Invoke ship's onTargeted event (if it is a ship).
             Ship targetShip = target.GetComponent<Ship>();
-            if (targetShip != null) {
-                targetShip.onTargeted.Invoke();
-            }
+            // TODO: When invoking, pass (this ship? as) argument
+            if (targetShip != null) targetShip.onTargeted.Invoke();
         }
     }
 }

@@ -11,10 +11,16 @@ public class AsteroidManager : MonoBehaviour
     public float asteroidSizeMax = 5.0f;
     void Start()
     {
+        GenerateAsteroids();
+    }
+
+    public void GenerateAsteroids()
+    {
         // Randomly select a prefab from pfAsteroids, then instantiate it.
         // After that, set AsteroidManager as parent and set random scale (based on min, max size) 
         // and random rotation.
-        for (int i=0; i < amountOfAsteroids; i++) {
+        for (int i=0; i < amountOfAsteroids; i++)
+        {
             Transform asteroid = pfAsteroids[Random.Range(0, pfAsteroids.Length)];
             Transform asteroidInstance = Instantiate(asteroid, Random.insideUnitSphere * maxDistance, Quaternion.identity);
             asteroidInstance.SetParent(transform);
