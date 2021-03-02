@@ -36,7 +36,16 @@ public class PointerController : MonoBehaviour
         
         GameObject[] collectables = GameObject.FindGameObjectsWithTag(collectableTag);
         foreach (GameObject collectable in collectables)
-            setPointer(collectable, itemPointerSprite, Color.yellow);
+        {
+            // If item has buff, change color to green, else make it yellow
+            CollectableToInventory collectableInv = collectable.GetComponent<CollectableToInventory>();
+            Color pointerColor;
+            if (collectableInv.item.buffs.Length > 0) pointerColor = Color.green;
+            else pointerColor = Color.yellow;
+            
+            setPointer(collectable, itemPointerSprite, pointerColor);
+            
+        }
         
         // Destroy pointers that no longer exist.
         if (enemies.Length + collectables.Length != pointers.Count)
