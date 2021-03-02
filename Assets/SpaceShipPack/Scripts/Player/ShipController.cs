@@ -37,11 +37,20 @@ public class ShipController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         ship = GetComponent<Ship>();
         defaultFOV = Camera.main.fieldOfView;
+
+        // TODO: this is for debug
+        Debug.Log("loading inventory");
+        inventory.Load();
     }
 
     void Update()
     {
-        
+        // TODO: this is for debug
+        if (Input.GetKeyDown(KeyCode.F9))
+        {
+            Debug.Log("saving inventory");
+            inventory.Save();
+        }
     }
 
     private void CheckShootingControls() {
@@ -117,6 +126,9 @@ public class ShipController : MonoBehaviour
         {
             ship.Stabilise();
         }
+
+
+
     }
 
     private void AdjustFOVOnSpeed()
