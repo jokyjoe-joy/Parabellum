@@ -3,6 +3,7 @@ using UnityEngine.Rendering.PostProcessing;
 
 public class ShipController : MonoBehaviour
 {
+    public MouseItem mouseItem = new MouseItem();
     private float defaultFOV;
     private float currentFOV;
     private Ship ship;

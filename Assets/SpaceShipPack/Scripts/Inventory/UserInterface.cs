@@ -4,17 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
-public class InventoryUI : MonoBehaviour
+public abstract class UserInterface : MonoBehaviour
 {
-    public MouseItem mouseItem = new MouseItem();
     public InventoryObject inventory;
-    public int X_SPACE_BETWEEN_ITEM;
-    public int NUMBER_OF_COLUMN;
-    public int Y_SPACE_BETWEEN_ITEM;
-
-    Dictionary<GameObject, InventorySlot> itemsDisplayed = new Dictionary<GameObject, InventorySlot>();
-    private Transform itemSlotContainer;
-    private Transform itemSlotTemplate;
+    public Dictionary<GameObject, InventorySlot> itemsDisplayed = new Dictionary<GameObject, InventorySlot>();
+    protected Transform itemSlotContainer;
+    protected Transform itemSlotTemplate;
     private bool isInventoryActive;
     private ShipController playerShipController;
 
@@ -104,25 +99,9 @@ public class InventoryUI : MonoBehaviour
         }
     }
  
-    public void CreateSlots()
-    {
-        itemsDisplayed = new Dictionary<GameObject, InventorySlot>();
-        for (int i = 0; i < inventory.Container.Items.Length; i++)
-        {
-            var obj = Instantiate(itemSlotTemplate, Vector3.zero, Quaternion.identity, itemSlotContainer).gameObject;
-            obj.GetComponent<RectTransform>().localPosition = GetPosition(i);
+    public abstract void CreateSlots();
 
-            AddEvent(obj, EventTriggerType.PointerExit, delegate { OnExit(obj); });
-            AddEvent(obj, EventTriggerType.PointerEnter, delegate { OnEnter(obj); });
-            AddEvent(obj, EventTriggerType.BeginDrag, delegate { OnDragStart(obj); });
-            AddEvent(obj, EventTriggerType.EndDrag, delegate { OnDragEnd(obj); });
-            AddEvent(obj, EventTriggerType.Drag, delegate { OnDrag(obj); });
-
-            itemsDisplayed.Add(obj, inventory.Container.Items[i]);
-        }
-    }
-
-    private void AddEvent(GameObject obj, EventTriggerType type, UnityAction<BaseEventData> action)
+    protected void AddEvent(GameObject obj, EventTriggerType type, UnityAction<BaseEventData> action)
     {
         EventTrigger trigger = obj.GetComponent<EventTrigger>();
         var eventTrigger = new EventTrigger.Entry();
@@ -131,21 +110,17 @@ public class InventoryUI : MonoBehaviour
         trigger.triggers.Add(eventTrigger);
     }
 
-    public Vector3 GetPosition(int i)
-    {
-        return new Vector3(X_SPACE_BETWEEN_ITEM * (i % NUMBER_OF_COLUMN), (-Y_SPACE_BETWEEN_ITEM * (i/NUMBER_OF_COLUMN)), 0f);
-    }
 
     public void OnEnter(GameObject obj)
     {
-        mouseItem.hoverObj = obj;
+        playerShipController.mouseItem.hoverObj = obj;
         if (itemsDisplayed.ContainsKey(obj))
-            mouseItem.hoverItem = itemsDisplayed[obj];
+            playerShipController.mouseItem.hoverItem = itemsDisplayed[obj];
     }
     public void OnExit(GameObject obj)
     {
-        mouseItem.hoverObj = null;
-        mouseItem.hoverItem = null;
+        playerShipController.mouseItem.hoverObj = null;
+        playerShipController.mouseItem.hoverItem = null;
     }
     public void OnDragStart(GameObject obj)
     {
@@ -160,28 +135,36 @@ public class InventoryUI : MonoBehaviour
             img.sprite = inventory.database.GetItem[itemsDisplayed[obj].ID].itemSprite;
             img.raycastTarget = false;
         }
-        mouseItem.obj = mouseObject;
-        mouseItem.item = itemsDisplayed[obj];
+        playerShipController.mouseItem.obj = mouseObject;
+        playerShipController.mouseItem.item = itemsDisplayed[obj];
     }
     public void OnDragEnd(GameObject obj)
     {
-        if (mouseItem.hoverObj)
+        if (playerShipController.mouseItem.hoverObj)
         {
-            inventory.MoveItem(itemsDisplayed[obj], itemsDisplayed[mouseItem.hoverObj]);
+            inventory.MoveItem(itemsDisplayed[obj], itemsDisplayed[playerShipController.mouseItem.hoverObj]);
         }
         else
         {
             inventory.RemoveItem(itemsDisplayed[obj].item);
 
         }
-        Destroy(mouseItem.obj);
-        mouseItem.item = null;
+        Destroy(playerShipController.mouseItem.obj);
+        playerShipController.mouseItem.item = null;
     }
     public void OnDrag(GameObject obj)
     {
-        if (mouseItem.obj != null)
+        if (playerShipController.mouseItem.obj != null)
         {
-            mouseItem.obj.GetComponent<RectTransform>().position = Input.mousePosition;
+            playerShipController.mouseItem.obj.GetComponent<RectTransform>().position = Input.mousePosition;
         }
     }
+}
+
+public class MouseItem
+{   
+    public GameObject obj;
+    public InventorySlot item;
+    public InventorySlot hoverItem;
+    public GameObject hoverObj;
 }
