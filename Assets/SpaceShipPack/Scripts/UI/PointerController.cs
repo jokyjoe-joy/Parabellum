@@ -40,7 +40,7 @@ public class PointerController : MonoBehaviour
             // If item has buff, change color to green, else make it yellow
             CollectableToInventory collectableInv = collectable.GetComponent<CollectableToInventory>();
             Color pointerColor;
-            if (collectableInv.item.buffs.Length > 0) pointerColor = Color.green;
+            if (collectableInv.item.data.buffs.Length > 0) pointerColor = Color.green;
             else pointerColor = Color.yellow;
             
             setPointer(collectable, itemPointerSprite, pointerColor);

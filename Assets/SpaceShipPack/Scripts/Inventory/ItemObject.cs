@@ -24,7 +24,6 @@ public enum Attributes
 public abstract class ItemObject : ScriptableObject
 {
     
-    public int Id;
     public string itemName;
     [TextArea(15,20)]
     public string itemDescription;
@@ -32,7 +31,7 @@ public abstract class ItemObject : ScriptableObject
     public bool stackable = true;
     [Tooltip("Prefab that will be instantiated when item is dropped or equipped.")]
     public ItemType type;
-    public ItemBuff[] buffs;
+    public Item data = new Item();
 
     public Item CreateItem()
     {
@@ -46,7 +45,7 @@ public abstract class ItemObject : ScriptableObject
 public class Item
 {
     public string Name;
-    public int Id;
+    public int Id = -1;
     public bool stackable;
     public Sprite sprite;
     public ItemBuff[] buffs;
@@ -58,14 +57,14 @@ public class Item
     public Item(ItemObject item)
     {
         Name = item.name;
-        Id = item.Id;
+        Id = item.data.Id;
         stackable = item.stackable;
         sprite = item.itemSprite;
-        buffs = new ItemBuff[item.buffs.Length];
+        buffs = new ItemBuff[item.data.buffs.Length];
         for (int i = 0; i < buffs.Length; i++)
         {
-            buffs[i] = new ItemBuff(item.buffs[i].min, item.buffs[i].max);
-            buffs[i].attribute = item.buffs[i].attribute;
+            buffs[i] = new ItemBuff(item.data.buffs[i].min, item.data.buffs[i].max);
+            buffs[i].attribute = item.data.buffs[i].attribute;
         }
     }
 }

@@ -3,7 +3,6 @@ using UnityEngine.Rendering.PostProcessing;
 
 public class ShipController : MonoBehaviour
 {
-    public MouseItem mouseItem = new MouseItem();
     private float defaultFOV;
     private float currentFOV;
     private Ship ship;
@@ -19,7 +18,7 @@ public class ShipController : MonoBehaviour
     [HideInInspector] public bool shouldCheckControls = true;
     
     public InventoryObject inventory; //TODO: should this be public?
-
+    public InventoryObject equipment;
     private void Awake()
     {
         weaponSystem = GetComponent<WeaponSystem>();
@@ -41,8 +40,8 @@ public class ShipController : MonoBehaviour
         defaultFOV = Camera.main.fieldOfView;
 
         // TODO: this is for debug
-        Debug.Log("loading inventory");
         inventory.Load();
+        equipment.Load();
     }
 
     void Update()
@@ -50,8 +49,8 @@ public class ShipController : MonoBehaviour
         // TODO: this is for debug
         if (Input.GetKeyDown(KeyCode.F9))
         {
-            Debug.Log("saving inventory");
             inventory.Save();
+            equipment.Save();
         }
     }
 
@@ -191,6 +190,7 @@ public class ShipController : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        inventory.Container.Items = new InventorySlot[24];
+        inventory.Container.Clear();
+        equipment.Container.Clear();
     }
 }

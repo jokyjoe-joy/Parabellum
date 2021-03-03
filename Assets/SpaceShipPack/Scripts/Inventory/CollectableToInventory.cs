@@ -30,6 +30,7 @@ public class CollectableToInventory : MonoBehaviour
             float distanceFromObject = Vector3.Distance(transform.position, closeObjectTransform.position);
             if (distanceFromObject < fromDistanceToAddToInventory)
             {
+                // TODO: Only add if has empty slot
                 inventory.AddItem(new Item(item), 1);
                 Destroy(gameObject);
             } 
