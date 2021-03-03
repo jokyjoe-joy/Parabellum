@@ -16,7 +16,8 @@ public abstract class UserInterface : MonoBehaviour
     private void Awake()
     {
         itemSlotContainer = transform.Find("itemSlotContainer");
-        itemSlotTemplate = itemSlotContainer.Find("itemSlotTemplate");
+        // FIXME: This is not the way
+        if (this.name == "Inventory") itemSlotTemplate = itemSlotContainer.Find("itemSlotTemplate");
         // Deactivating inventory UI if active
         foreach (Transform child in transform) {
             child.gameObject.SetActive(false);
@@ -28,7 +29,13 @@ public abstract class UserInterface : MonoBehaviour
     }
 
     private void Start() {
+        for (int i = 0; i < inventory.Container.Items.Length; i++)
+        {
+            inventory.Container.Items[i].parent = this;
+        }
         CreateSlots();
+        AddEvent(gameObject, EventTriggerType.PointerEnter, delegate { OnEnterInterface(gameObject); });
+        AddEvent(gameObject, EventTriggerType.PointerExit, delegate { OnExitInterface(gameObject); });
     }
 
     void Update()
@@ -64,9 +71,14 @@ public abstract class UserInterface : MonoBehaviour
         // Setting children active based on isInventoryActive
         foreach (Transform child in transform)
             child.gameObject.SetActive(isInventoryActive);
-        foreach (Transform child in itemSlotContainer)
-            child.gameObject.SetActive(isInventoryActive);
-        itemSlotTemplate.gameObject.SetActive(false);
+        // FIXME: this is not the way
+        if (this.name == "Inventory")
+        {
+            foreach (Transform child in itemSlotContainer)
+                child.gameObject.SetActive(isInventoryActive);
+            itemSlotTemplate.gameObject.SetActive(false);
+
+        }
 
         // Enable or disable player ship movement
         playerShipController.shouldCheckControls = !isInventoryActive;
@@ -122,6 +134,17 @@ public abstract class UserInterface : MonoBehaviour
         playerShipController.mouseItem.hoverObj = null;
         playerShipController.mouseItem.hoverItem = null;
     }
+
+    public void OnEnterInterface(GameObject obj)
+    {
+        playerShipController.mouseItem.ui = obj.GetComponent<UserInterface>();
+    }
+
+    public void OnExitInterface(GameObject obj)
+    {
+        playerShipController.mouseItem.ui = null;
+    }
+
     public void OnDragStart(GameObject obj)
     {
         var mouseObject = new GameObject();
@@ -140,17 +163,23 @@ public abstract class UserInterface : MonoBehaviour
     }
     public void OnDragEnd(GameObject obj)
     {
-        if (playerShipController.mouseItem.hoverObj)
+        var itemOnMouse = playerShipController.mouseItem;
+        var mouseHoverItem = itemOnMouse.hoverItem;
+        var mouseHoverObj = itemOnMouse.hoverObj;
+        var GetItemObject = inventory.database.GetItem;
+
+        if (itemOnMouse.ui != null)
         {
-            inventory.MoveItem(itemsDisplayed[obj], itemsDisplayed[playerShipController.mouseItem.hoverObj]);
+            if (mouseHoverObj)
+                if (mouseHoverItem.CanPlaceInSlot(GetItemObject[itemsDisplayed[obj].ID]) && (mouseHoverItem.item.Id <= -1 || (mouseHoverItem.item.Id >= 0 && itemsDisplayed[obj].CanPlaceInSlot(GetItemObject[mouseHoverItem.item.Id]))))
+                    inventory.MoveItem(itemsDisplayed[obj], mouseHoverItem.parent.itemsDisplayed[itemOnMouse.hoverObj]);
         }
         else
         {
             inventory.RemoveItem(itemsDisplayed[obj].item);
-
         }
-        Destroy(playerShipController.mouseItem.obj);
-        playerShipController.mouseItem.item = null;
+        Destroy(itemOnMouse.obj);
+        itemOnMouse.item = null;
     }
     public void OnDrag(GameObject obj)
     {
@@ -163,6 +192,7 @@ public abstract class UserInterface : MonoBehaviour
 
 public class MouseItem
 {   
+    public UserInterface ui;
     public GameObject obj;
     public InventorySlot item;
     public InventorySlot hoverItem;
