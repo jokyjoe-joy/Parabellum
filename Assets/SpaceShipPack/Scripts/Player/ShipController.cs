@@ -16,9 +16,12 @@ public class ShipController : MonoBehaviour
     private HealthData healthData;
     [HideInInspector] public GameObject currentTarget = null;
     [HideInInspector] public bool shouldCheckControls = true;
+    public GameObject firstPersonCamera;
+    public GameObject thirdPersonCamera;
     
     public InventoryObject inventory; //TODO: should this be public?
     public InventoryObject equipment;
+    private SmoothMouseLook smoothMouse;
     private void Awake()
     {
         weaponSystem = GetComponent<WeaponSystem>();
@@ -30,6 +33,8 @@ public class ShipController : MonoBehaviour
         vignetteDefaultValue = vignette.intensity.value;
         cameraShake = Camera.main.GetComponent<CameraShake>();
         healthData.onDamage.AddListener(ShakeCamera);
+        smoothMouse  = firstPersonCamera.GetComponent<SmoothMouseLook>();
+
     }
 
     void Start()
@@ -52,6 +57,33 @@ public class ShipController : MonoBehaviour
             inventory.Save();
             equipment.Save();
         }
+
+        if (Input.GetKeyDown("v"))
+        {
+            // Switch between third and first person camera
+            if (Camera.main.name == firstPersonCamera.name)
+            {
+                Camera.main.gameObject.SetActive(false);
+                thirdPersonCamera.SetActive(true);
+            }
+            else
+            {
+                Camera.main.gameObject.SetActive(false);
+                firstPersonCamera.SetActive(true);
+            }
+        }
+
+        if (Input.GetKey(KeyCode.LeftAlt) && Camera.main.name == firstPersonCamera.name)
+        {
+            smoothMouse.enabled = true;
+            shouldCheckControls = false;
+        }
+        if (Input.GetKeyUp(KeyCode.LeftAlt) && Camera.main.name == firstPersonCamera.name)
+        {
+            smoothMouse.enabled = false;
+            shouldCheckControls = true;
+        }
+
     }
 
     private void CheckShootingControls()
