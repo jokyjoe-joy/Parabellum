@@ -222,7 +222,7 @@ public class ShipController : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        inventory.Container.Clear();
-        equipment.Container.Clear();
+        inventory.Clear();
+        equipment.Clear();
     }
 }
