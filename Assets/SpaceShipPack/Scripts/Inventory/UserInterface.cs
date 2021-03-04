@@ -28,23 +28,44 @@ public abstract class UserInterface : MonoBehaviour
 
     private void Start() 
     {
-        for (int i = 0; i < inventory.Container.Items.Length; i++)
+        for (int i = 0; i < inventory.GetSlots.Length; i++)
         {
-            inventory.Container.Items[i].parent = this;
+            inventory.GetSlots[i].parent = this;
+            inventory.GetSlots[i].OnAfterUpdate += OnSlotUpdate;
         }
         CreateSlots();
         AddEvent(gameObject, EventTriggerType.PointerEnter, delegate { OnEnterInterface(gameObject); });
         AddEvent(gameObject, EventTriggerType.PointerExit, delegate { OnExitInterface(gameObject); });
     }
 
+    private void OnSlotUpdate(InventorySlot _slot)
+    {
+        Text text = _slot.slotDisplay.transform.Find("amount").GetComponent<Text>();
+        Image image = _slot.slotDisplay.transform.Find("image").GetComponent<Image>();
+
+        // If has an item
+        if (_slot.item.Id >= 0)
+        {
+            image.sprite = _slot.ItemObject.itemSprite;
+            text.text = _slot.amount == 1 ? "" : _slot.amount.ToString();
+            
+            foreach (Transform child in _slot.slotDisplay.transform)
+            {
+                child.gameObject.SetActive(true);
+            }
+        }
+        else
+        {
+            image.gameObject.SetActive(false);
+            text.gameObject.SetActive(false);
+        }
+    }
+
     void Update()
     {
+        // TODO: This shouldn't be here
         if (Input.GetKeyDown("i")) {
             SwitchInventoryVisibleInvisible();
-        }
-        if (isInventoryActive)
-        {
-            slotsOnInterface.UpdateSlotDisplay();
         }
         
     }
@@ -170,25 +191,7 @@ public static class ExtensionMethods
     {
         foreach (KeyValuePair<GameObject, InventorySlot> _slot in _slotsOnInterface)
         {
-            Text text = _slot.Key.transform.Find("amount").GetComponent<Text>();
-            Image image = _slot.Key.transform.Find("image").GetComponent<Image>();
 
-            // If has an item
-            if (_slot.Value.item.Id >= 0)
-            {
-                image.sprite = _slot.Value.ItemObject.itemSprite;
-                text.text = _slot.Value.amount == 1 ? "" : _slot.Value.amount.ToString();
-                
-                foreach (Transform child in _slot.Key.transform)
-                {
-                    child.gameObject.SetActive(true);
-                }
-            }
-            else
-            {
-                image.gameObject.SetActive(false);
-                text.gameObject.SetActive(false);
-            }
             
         }
     }
