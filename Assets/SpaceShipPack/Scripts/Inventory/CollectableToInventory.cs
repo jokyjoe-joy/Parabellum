@@ -45,19 +45,18 @@ public class CollectableToInventory : MonoBehaviour
     public void OnTriggerEnter(Collider other)
     {
         // Check if this object has an inventory, if it doesn't: return.
-        // TODO: also try to get the inventory of AI
-        ShipController shipController = other.transform.GetComponent<ShipController>();
-        if (shipController != null)
+        Ship ship = other.transform.GetComponent<Ship>();
+        if (ship != null)
         {
-            inventory = shipController.inventory;
+            inventory = ship.inventory;
         } 
         else if (other.transform.parent != null)
         {
-            shipController = other.transform.parent.gameObject.GetComponent<ShipController>();
+            ship = other.transform.parent.gameObject.GetComponent<Ship>();
         }
-        if (shipController != null)
+        if (ship != null)
         {
-            inventory = shipController.inventory;
+            inventory = ship.inventory;
         } else return; // if not even parent has a shipcontroller
         if (inventory == null) return;
 

@@ -4,12 +4,22 @@ using UnityEngine;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using UnityEditor;
+using System.Runtime.Serialization;
+
+
+public enum InterfaceType
+{
+    Inventory,
+    Equipment,
+    Chest
+}
 
 [CreateAssetMenu(fileName = "New Inventory", menuName = "Inventory System/Inventory")]
 public class InventoryObject : ScriptableObject
 {
     public string savePath = "/inventory.dat";
     public ItemDatabaseObject database;
+    public InterfaceType type;
     public Inventory Container;
     public InventorySlot[] GetSlots { get { return Container.Slots; } }
 
@@ -117,9 +127,16 @@ public class InventoryObject : ScriptableObject
         {
             BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(string.Concat(Application.persistentDataPath, savePath), FileMode.Open);
-            //JsonUtility.FromJsonOverwrite(bf.Deserialize(file).ToString(), this);
+
             JsonUtility.FromJsonOverwrite(bf.Deserialize(file).ToString(), Container);
+            Debug.Log("updating slots");
+            //Debug.Log(GetSlots.Length);
+            for (int i = 0; i < GetSlots.Length; i++)
+            {
+                GetSlots[i].UpdateSlot(Container.Slots[i].item, Container.Slots[i].amount);
+            }
             file.Close();
+
         }
     }
 
@@ -153,7 +170,7 @@ public class InventorySlot
     [System.NonSerialized] public GameObject slotDisplay;
     [System.NonSerialized] public SlotUpdated OnAfterUpdate;
     [System.NonSerialized] public SlotUpdated OnBeforeUpdate;
-    public Item item; // = new Item();?
+    public Item item = new Item();
     public int amount;
 
     public ItemObject ItemObject

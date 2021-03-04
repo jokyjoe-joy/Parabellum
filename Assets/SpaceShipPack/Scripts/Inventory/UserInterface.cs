@@ -19,7 +19,8 @@ public abstract class UserInterface : MonoBehaviour
         // FIXME: This is not the way
         if (this.name == "Inventory") itemSlotTemplate = itemSlotContainer.Find("itemSlotTemplate");
         // Deactivating inventory UI if active
-        foreach (Transform child in transform) {
+        foreach (Transform child in transform) 
+        {
             child.gameObject.SetActive(false);
         }
         isInventoryActive = false;
@@ -34,12 +35,14 @@ public abstract class UserInterface : MonoBehaviour
             inventory.GetSlots[i].OnAfterUpdate += OnSlotUpdate;
         }
         CreateSlots();
+        
         AddEvent(gameObject, EventTriggerType.PointerEnter, delegate { OnEnterInterface(gameObject); });
         AddEvent(gameObject, EventTriggerType.PointerExit, delegate { OnExitInterface(gameObject); });
     }
 
     private void OnSlotUpdate(InventorySlot _slot)
     {
+        Debug.Log("On slot update");
         Text text = _slot.slotDisplay.transform.Find("amount").GetComponent<Text>();
         Image image = _slot.slotDisplay.transform.Find("image").GetComponent<Image>();
 
@@ -85,6 +88,7 @@ public abstract class UserInterface : MonoBehaviour
             Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = true;
             isInventoryActive = true;
+            // TODO: is the funtion below doing anything?
             slotsOnInterface.UpdateSlotDisplay();
         }
 
@@ -191,8 +195,6 @@ public static class ExtensionMethods
     {
         foreach (KeyValuePair<GameObject, InventorySlot> _slot in _slotsOnInterface)
         {
-
-            
         }
     }
 }

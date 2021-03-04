@@ -18,9 +18,6 @@ public class ShipController : MonoBehaviour
     [HideInInspector] public bool shouldCheckControls = true;
     public GameObject firstPersonCamera;
     public GameObject thirdPersonCamera;
-    
-    public InventoryObject inventory; //TODO: should this be public?
-    public InventoryObject equipment;
     private SmoothMouseLook smoothMouse;
     private void Awake()
     {
@@ -34,7 +31,6 @@ public class ShipController : MonoBehaviour
         cameraShake = Camera.main.GetComponent<CameraShake>();
         healthData.onDamage.AddListener(ShakeCamera);
         smoothMouse  = firstPersonCamera.GetComponent<SmoothMouseLook>();
-
     }
 
     void Start()
@@ -43,21 +39,10 @@ public class ShipController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         ship = GetComponent<Ship>();
         defaultFOV = Camera.main.fieldOfView;
-
-        // TODO: this is for debug
-        inventory.Load();
-        equipment.Load();
     }
 
     void Update()
     {
-        // TODO: this is for debug
-        if (Input.GetKeyDown(KeyCode.F9))
-        {
-            inventory.Save();
-            equipment.Save();
-        }
-
         if (Input.GetKeyDown("v"))
         {
             // Switch between third and first person camera
@@ -214,15 +199,8 @@ public class ShipController : MonoBehaviour
         }
     }
 
-    
     private void ShakeCamera()
     {
         cameraShake.shakeDuration = 0.4f;
-    }
-
-    private void OnApplicationQuit()
-    {
-        inventory.Clear();
-        equipment.Clear();
     }
 }
