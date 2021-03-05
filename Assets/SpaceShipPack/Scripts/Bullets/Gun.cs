@@ -11,7 +11,6 @@ public class Gun : MonoBehaviour
     public bool isGunLoading = false;
     public GameObject shootingVFX;
     public float shootingVFXScale = 1;
-
     public void Shoot(Vector3 initialVelocity, bool isLookingForEnemy=true)
     {
         if (initialVelocity == null) initialVelocity = new Vector3(0,0,0);
@@ -34,7 +33,9 @@ public class Gun : MonoBehaviour
             LeadBullet bulletController = bulletTransform.GetComponent<LeadBullet>();
             if (bulletController != null)
             {
-                bulletController.Setup(transform.forward, initialVelocity);
+                Vector3 aimDir = Camera.main.ScreenPointToRay(Input.mousePosition).direction;
+                bulletController.Setup(transform.forward, aimDir * initialVelocity.sqrMagnitude);
+                //bulletController.Setup(transform.forward, initialVelocity);
             }
 
             Rocket rocketController = bulletTransform.GetComponent<Rocket>();
