@@ -33,6 +33,9 @@ public class Ship : MonoBehaviour
         healthData = GetComponent<HealthData>();
         rigidbody = GetComponent<Rigidbody>();
         weaponSystem = GetComponent<WeaponSystem>();
+        // TODO: Put all the inventory stuff to ShipController to avoid complicating everything.
+        if (inventory == null) inventory = ScriptableObject.CreateInstance<InventoryObject>();
+        if (equipment == null) equipment = ScriptableObject.CreateInstance<InventoryObject>();
         
     }
 
@@ -108,6 +111,7 @@ public class Ship : MonoBehaviour
     }
     public void OnAddEquipment(InventorySlot _slot)
     {
+        Debug.Log("onaddequipment");
         if (_slot.ItemObject == null) return;
         switch (_slot.parent.inventory.type)
         {
@@ -130,11 +134,13 @@ public class Ship : MonoBehaviour
                         case ItemType.Weapon:
                             if (gun1 == null) 
                             {
+                                Debug.Log("adding to gun1");
                                 gun1 = AddEquipment(_slot.ItemObject.prefabToEquip, gun1Position);
                                 weaponSystem.Guns.Add(gun1.gameObject.GetComponent<Gun>());
                             }
                             else if (gun2 == null)
                             {
+                                Debug.Log("adding to gun2");
                                 gun2 = AddEquipment(_slot.ItemObject.prefabToEquip, gun2Position);
                                 weaponSystem.Guns.Add(gun2.gameObject.GetComponent<Gun>());
                             }
@@ -209,7 +215,6 @@ public class Ship : MonoBehaviour
 
     public Transform AddEquipment(GameObject _equipmentToAdd, Transform _equipmentPosition)
     {
-        Debug.Log("adding equipment");
         GameObject _equippedEquipment = Instantiate(_equipmentToAdd, _equipmentPosition.position, _equipmentPosition.rotation);
         _equippedEquipment.transform.SetParent(transform);
         return _equippedEquipment.transform;

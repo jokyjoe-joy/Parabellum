@@ -74,7 +74,7 @@ public class ShipController : MonoBehaviour
     private void CheckShootingControls()
     {
         // Create Shoot event on Left Click
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0))
         {
             weaponSystem.ShootGuns(ship.currentVelocity);
         }
