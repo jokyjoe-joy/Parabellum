@@ -4,10 +4,14 @@ using UnityEngine;
 
 public class LeadBullet : MonoBehaviour
 {
+    // TODO: Have a Bullet script that will be Rocket and LeadBullet using instead of MonoBehaviour
+
     public float moveSpeed = 100f;
     public int DamageAmount = 10;
     private Vector3 shootDir;
     private new Rigidbody rigidbody;
+    public GameObject explosionVFX;
+    public float explosionScale = 1;
 
     private void Awake() {
         rigidbody = GetComponent<Rigidbody>();
@@ -38,6 +42,9 @@ public class LeadBullet : MonoBehaviour
         {
             // target hit
             healthData.Damage(DamageAmount);
+            GameObject explosion = Instantiate(explosionVFX, transform.position, Quaternion.identity);
+            explosion.transform.localScale *= explosionScale * collider.gameObject.transform.localScale.x;
+            Destroy(explosion, 2f);
             Destroy(gameObject);
         }
     }
