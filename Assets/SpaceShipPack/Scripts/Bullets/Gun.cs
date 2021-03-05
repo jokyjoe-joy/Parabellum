@@ -5,13 +5,14 @@ using UnityEngine;
 
 public class Gun : MonoBehaviour
 {
+    public Transform pfBullet;
     public float reloadTime = 5;
     public bool isGunLoaded = true;
     public bool isGunLoading = false;
     public GameObject shootingVFX;
     public float shootingVFXScale = 1;
 
-    public void Shoot(Transform pfBullet, Vector3 initialVelocity, bool isLookingForEnemy=true)
+    public void Shoot(Vector3 initialVelocity, bool isLookingForEnemy=true)
     {
         if (initialVelocity == null) initialVelocity = new Vector3(0,0,0);
         // Only shoot if gun is loaded

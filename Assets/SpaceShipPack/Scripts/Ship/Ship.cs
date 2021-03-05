@@ -17,11 +17,12 @@ public class Ship : MonoBehaviour
     public Attribute[] attributes;
     public InventoryObject inventory; 
     public InventoryObject equipment;
+    // TODO: instead of gun1 and gun2 use a Dictionary
     public Transform gun1;
     public Transform gun2;
     public Transform gun1Position;
     public Transform gun2Position;
-
+    [HideInInspector] public WeaponSystem weaponSystem;
     [HideInInspector] public Vector3 currentVelocity;
     [HideInInspector] public new Rigidbody rigidbody; // FIXME: shouldn't be public later on?
     [HideInInspector] public HealthData healthData;
@@ -31,6 +32,8 @@ public class Ship : MonoBehaviour
     {
         healthData = GetComponent<HealthData>();
         rigidbody = GetComponent<Rigidbody>();
+        weaponSystem = GetComponent<WeaponSystem>();
+        
     }
 
     private void Start() 
@@ -79,13 +82,19 @@ public class Ship : MonoBehaviour
 
                 if (_slot.ItemObject.prefabToEquip != null)
                 {
-                    Debug.Log("removing equipment");
                     switch (_slot.AllowedItems[0])
                     {
                         case ItemType.Weapon:
                             // TODO: This is not removing the item that is intended to remove.
-                            if (gun1 != null) Destroy(gun1.gameObject);
-                            else if (gun2 != null) Destroy(gun2.gameObject);
+                            // TODO: should remove from weaponsystem as well?!
+                            if (gun1 != null) 
+                            {
+                                Destroy(gun1.gameObject);
+                            }
+                            else if (gun2 != null)
+                            {
+                                Destroy(gun2.gameObject);
+                            }
                             break;
                         default:
                             break;
@@ -119,9 +128,16 @@ public class Ship : MonoBehaviour
                     switch (_slot.AllowedItems[0])
                     {
                         case ItemType.Weapon:
-                            // TODO: Connect weapons to weaponsystem
-                            if (gun1 == null) gun1 = AddEquipment(_slot.ItemObject.prefabToEquip, gun1Position);
-                            else if (gun2 == null) gun2 = AddEquipment(_slot.ItemObject.prefabToEquip, gun2Position);
+                            if (gun1 == null) 
+                            {
+                                gun1 = AddEquipment(_slot.ItemObject.prefabToEquip, gun1Position);
+                                weaponSystem.Guns.Add(gun1.gameObject.GetComponent<Gun>());
+                            }
+                            else if (gun2 == null)
+                            {
+                                gun2 = AddEquipment(_slot.ItemObject.prefabToEquip, gun2Position);
+                                weaponSystem.Guns.Add(gun2.gameObject.GetComponent<Gun>());
+                            }
                             break;
                         default:
                             break;
@@ -142,11 +158,6 @@ public class Ship : MonoBehaviour
         {
             inventory.Save();
             equipment.Save();
-        }
-        if (Input.GetKeyDown(KeyCode.F10))
-        {
-            // TODO: this is for debug
-
         }
     }
 
