@@ -113,11 +113,15 @@ public class InventoryObject : ScriptableObject
     {
         // Turn this whole InventoryObject to JSON and save it to savePath.
         //string saveData = JsonUtility.ToJson(this, true);
-        string saveData = JsonUtility.ToJson(Container, true);
+/*         string saveData = JsonUtility.ToJson(Container, true);
         BinaryFormatter bf = new BinaryFormatter();
         FileStream file = File.Create(string.Concat(Application.persistentDataPath, savePath));
         bf.Serialize(file, saveData);
-        file.Close();
+        file.Close(); */
+        IFormatter formatter = new BinaryFormatter();
+        Stream stream = new FileStream(string.Concat(Application.persistentDataPath, savePath), FileMode.Create, FileAccess.Write);
+        formatter.Serialize(stream, Container);
+        stream.Close();
     }
 
     public void Load() 
@@ -125,7 +129,7 @@ public class InventoryObject : ScriptableObject
         // Check if we already have a save, if we do, then overwrite this InventoryObject based on that.
         if (File.Exists(string.Concat(Application.persistentDataPath, savePath))) 
         {
-            BinaryFormatter bf = new BinaryFormatter();
+/*             BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(string.Concat(Application.persistentDataPath, savePath), FileMode.Open);
 
             JsonUtility.FromJsonOverwrite(bf.Deserialize(file).ToString(), Container);
@@ -135,7 +139,15 @@ public class InventoryObject : ScriptableObject
             {
                 GetSlots[i].UpdateSlot(Container.Slots[i].item, Container.Slots[i].amount);
             }
-            file.Close();
+            file.Close(); */
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new FileStream(string.Concat(Application.persistentDataPath, savePath), FileMode.Open, FileAccess.Read);
+            Inventory newContainer = (Inventory)formatter.Deserialize(stream);
+            for (int i = 0; i < GetSlots.Length; i++)
+            {
+                GetSlots[i].UpdateSlot(newContainer.Slots[i].item, newContainer.Slots[i].amount);
+            }
+            stream.Close();
 
         }
     }

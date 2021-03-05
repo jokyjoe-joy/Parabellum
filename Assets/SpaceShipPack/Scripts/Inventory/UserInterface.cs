@@ -25,15 +25,17 @@ public abstract class UserInterface : MonoBehaviour
         }
         isInventoryActive = false;
         playerShipController = GameObject.FindGameObjectWithTag("PlayerTag").transform.parent.GetComponent<ShipController>();
-    }
-
-    private void Start() 
-    {
+    
         for (int i = 0; i < inventory.GetSlots.Length; i++)
         {
             inventory.GetSlots[i].parent = this;
             inventory.GetSlots[i].OnAfterUpdate += OnSlotUpdate;
         }
+    }
+
+    private void Start() 
+    {
+
         CreateSlots();
         
         AddEvent(gameObject, EventTriggerType.PointerEnter, delegate { OnEnterInterface(gameObject); });
@@ -42,7 +44,6 @@ public abstract class UserInterface : MonoBehaviour
 
     private void OnSlotUpdate(InventorySlot _slot)
     {
-        Debug.Log("On slot update");
         Text text = _slot.slotDisplay.transform.Find("amount").GetComponent<Text>();
         Image image = _slot.slotDisplay.transform.Find("image").GetComponent<Image>();
 

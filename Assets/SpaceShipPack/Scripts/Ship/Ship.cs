@@ -31,9 +31,12 @@ public class Ship : MonoBehaviour
 
     private void Start() 
     {
-        // TODO: this is for debug
-        inventory.Load();
-        equipment.Load();
+
+        // TODO: Get a better method for doing this stuff below
+        // Load only after Start() because in inventorySlot, in UpdateSlot, onAfterUpdate and onBeforeUpdate
+        // don't work right after start (they are null).
+        StartCoroutine(LoadInventories());
+
         for (int i = 0; i < attributes.Length; i++)
         {
             attributes[i].SetParent(this);
@@ -43,6 +46,13 @@ public class Ship : MonoBehaviour
             equipment.GetSlots[i].OnBeforeUpdate += OnBeforeEquipmentSlotUpdate;
             equipment.GetSlots[i].OnAfterUpdate += OnAfterEquipmentSlotUpdate;
         }
+    }
+
+    IEnumerator LoadInventories()
+    {
+        yield return new WaitForSeconds(0.3f);
+        inventory.Load();
+        equipment.Load();
     }
 
     public void OnBeforeEquipmentSlotUpdate(InventorySlot _slot)
@@ -96,6 +106,11 @@ public class Ship : MonoBehaviour
         {
             inventory.Save();
             equipment.Save();
+        }
+        if (Input.GetKeyDown(KeyCode.F10))
+        {
+            // TODO: this is for debug
+
         }
     }
 
