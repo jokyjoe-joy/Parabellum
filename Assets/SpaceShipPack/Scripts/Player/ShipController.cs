@@ -110,9 +110,9 @@ public class ShipController : MonoBehaviour
                     }
                     else
                     {
-                        // TODO: This should not select randomly, but selecting in order of
-                        // distance (first the ones close, then the ones far)
-                        currentTarget = enemies[Random.Range(0,enemies.Length)].transform.parent.gameObject;
+                        // TODO: Does this work below properly?
+                        currentTarget = jokyUtilities.GetClosestGameObject(enemies, transform).transform.parent.gameObject;
+                        //currentTarget = enemies[Random.Range(0,enemies.Length)].transform.parent.gameObject;
                     }
                 }
             }
