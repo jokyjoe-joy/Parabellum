@@ -28,6 +28,7 @@ public abstract class ItemObject : ScriptableObject
     [TextArea(15,20)]
     public string itemDescription;
     public Sprite itemSprite;
+    public GameObject prefabToEquip;
     public bool stackable = true;
     [Tooltip("Prefab that will be instantiated when item is dropped or equipped.")]
     public ItemType type;

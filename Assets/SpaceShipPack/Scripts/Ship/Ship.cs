@@ -17,6 +17,10 @@ public class Ship : MonoBehaviour
     public Attribute[] attributes;
     public InventoryObject inventory; 
     public InventoryObject equipment;
+    public Transform gun1;
+    public Transform gun2;
+    public Transform gun1Position;
+    public Transform gun2Position;
 
     [HideInInspector] public Vector3 currentVelocity;
     [HideInInspector] public new Rigidbody rigidbody; // FIXME: shouldn't be public later on?
@@ -43,8 +47,8 @@ public class Ship : MonoBehaviour
         }    
         for (int i = 0; i < equipment.GetSlots.Length; i++)
         {
-            equipment.GetSlots[i].OnBeforeUpdate += OnBeforeEquipmentSlotUpdate;
-            equipment.GetSlots[i].OnAfterUpdate += OnAfterEquipmentSlotUpdate;
+            equipment.GetSlots[i].OnBeforeUpdate += OnRemoveEquipment;
+            equipment.GetSlots[i].OnAfterUpdate += OnAddEquipment;
         }
     }
 
@@ -55,7 +59,7 @@ public class Ship : MonoBehaviour
         equipment.Load();
     }
 
-    public void OnBeforeEquipmentSlotUpdate(InventorySlot _slot)
+    public void OnRemoveEquipment(InventorySlot _slot)
     {
         if (_slot.ItemObject == null) return;
         switch (_slot.parent.inventory.type)
@@ -63,6 +67,7 @@ public class Ship : MonoBehaviour
             case InterfaceType.Inventory:
                 break;
             case InterfaceType.Equipment:
+                // Removing attributes that this item was giving the ship.
                 for (int i = 0; i < _slot.item.buffs.Length; i++)
                 {
                     for (int j = 0; j < attributes.Length; j++)
@@ -71,12 +76,28 @@ public class Ship : MonoBehaviour
                             attributes[j].value.RemoveModifier(_slot.item.buffs[i]);
                     }
                 }
+
+                if (_slot.ItemObject.prefabToEquip != null)
+                {
+                    Debug.Log("removing equipment");
+                    switch (_slot.AllowedItems[0])
+                    {
+                        case ItemType.Weapon:
+                            // TODO: This is not removing the item that is intended to remove.
+                            if (gun1 != null) Destroy(gun1.gameObject);
+                            else if (gun2 != null) Destroy(gun2.gameObject);
+                            break;
+                        default:
+                            break;
+                    }
+
+                }
                 break;
             default:
                 break;
         }
     }
-    public void OnAfterEquipmentSlotUpdate(InventorySlot _slot)
+    public void OnAddEquipment(InventorySlot _slot)
     {
         if (_slot.ItemObject == null) return;
         switch (_slot.parent.inventory.type)
@@ -92,6 +113,21 @@ public class Ship : MonoBehaviour
                             attributes[j].value.AddModifier(_slot.item.buffs[i]);
                     }
                 }
+
+                if (_slot.ItemObject.prefabToEquip != null)
+                {
+                    switch (_slot.AllowedItems[0])
+                    {
+                        case ItemType.Weapon:
+                            // TODO: Connect weapons to weaponsystem
+                            if (gun1 == null) gun1 = AddEquipment(_slot.ItemObject.prefabToEquip, gun1Position);
+                            else if (gun2 == null) gun2 = AddEquipment(_slot.ItemObject.prefabToEquip, gun2Position);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
                 break;
             default:
                 break;
@@ -157,9 +193,16 @@ public class Ship : MonoBehaviour
 
     public void AttributeModified(Attribute attribute)
     {
-        
+        // TODO: this?
     }
 
+    public Transform AddEquipment(GameObject _equipmentToAdd, Transform _equipmentPosition)
+    {
+        Debug.Log("adding equipment");
+        GameObject _equippedEquipment = Instantiate(_equipmentToAdd, _equipmentPosition.position, _equipmentPosition.rotation);
+        _equippedEquipment.transform.SetParent(transform);
+        return _equippedEquipment.transform;
+    }
 
     private void Explode()
     {
