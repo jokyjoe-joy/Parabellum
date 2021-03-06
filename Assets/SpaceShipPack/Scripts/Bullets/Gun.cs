@@ -11,6 +11,12 @@ public class Gun : MonoBehaviour
     public bool isGunLoading = false;
     public GameObject shootingVFX;
     public float shootingVFXScale = 1;
+    public Vector3 initialRotation;
+    private void Start()
+    {
+        initialRotation = transform.localEulerAngles;
+    }
+
     public void Shoot(Vector3 initialVelocity, bool isLookingForEnemy=true)
     {
         if (initialVelocity == null) initialVelocity = new Vector3(0,0,0);
