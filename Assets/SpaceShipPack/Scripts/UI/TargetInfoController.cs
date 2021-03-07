@@ -26,7 +26,7 @@ public class TargetInfoController : MonoBehaviour
             foreach (Transform child in transform) child.gameObject.SetActive(true);
             targetName.text = target.GetComponent<ShipAI>().nameOfAI;
             HealthData targetHealthData = target.GetComponent<HealthData>();
-            targetHealth.text = (targetHealthData.health / targetHealthData.healthMax * 100).ToString() + "%";
+            targetHealth.text = Mathf.RoundToInt(targetHealthData.health / targetHealthData.healthMax * 100).ToString() + "%";
         } 
         else 
         {

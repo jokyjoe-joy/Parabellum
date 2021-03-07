@@ -16,6 +16,6 @@ public class HealthBarPercent : MonoBehaviour
 
     void Update()
     {
-        healthPercentText.text = (playerHealthData.health / playerHealthData.healthMax * 100).ToString() + "%";
+        healthPercentText.text = Mathf.RoundToInt(playerHealthData.health / playerHealthData.healthMax * 100).ToString() + "%";
     }
 }
