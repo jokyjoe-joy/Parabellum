@@ -22,6 +22,8 @@ public class LeadBullet : MonoBehaviour
         rigidbody.velocity = initialVelocity;
         //transform.right = shootDir; // ???
         Destroy(gameObject, 5f);
+        
+        // TODO: Do the damage here using raycast, and not on ontriggerenter!
     }
 
     private void Update()

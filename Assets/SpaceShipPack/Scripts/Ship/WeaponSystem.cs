@@ -5,6 +5,7 @@ using UnityEngine;
 public class WeaponSystem : MonoBehaviour
 {
     public List<Gun> Guns = new List<Gun>();
+    public List<string> raycastWhitelist = new List<string>();
     public int raycastSphereRadius = 12;
     private bool isLookingForEnemy = false;
     private RaycastHit hit;
@@ -13,6 +14,11 @@ public class WeaponSystem : MonoBehaviour
         // In case this is a player ship, attack AI
         ShipAI shipAI = GetComponent<ShipAI>();
         if (shipAI == null) isLookingForEnemy = true;
+
+        // add default blacklists
+        raycastWhitelist.Add("enemy");
+        raycastWhitelist.Add("Enemy");
+        raycastWhitelist.Add("Player");
     }
 
     private void FixedUpdate() 
@@ -32,10 +38,18 @@ public class WeaponSystem : MonoBehaviour
         // If there is no object there, reset back to initialRotation.
         if (Physics.SphereCast(p1, raycastSphereRadius, p2, out hit, Mathf.Infinity))
         {
-            Debug.DrawRay(p1, p2 * hit.distance, Color.yellow);
-            foreach (Gun gun in Guns)
+
+            // Only look at object if it is in whitelist.
+            foreach (string whitename in raycastWhitelist)
             {
-                 if (gun != null) gun.transform.LookAt(hit.point);
+                if (hit.transform.name.Contains(whitename))
+                {
+                    Debug.DrawRay(p1, p2 * hit.distance, Color.yellow);
+                    foreach (Gun gun in Guns)
+                    {
+                        if (gun != null) gun.transform.LookAt(hit.point);
+                    }
+                }
             }
         }
         else

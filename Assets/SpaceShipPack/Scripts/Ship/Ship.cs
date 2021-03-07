@@ -111,7 +111,6 @@ public class Ship : MonoBehaviour
     }
     public void OnAddEquipment(InventorySlot _slot)
     {
-        Debug.Log("onaddequipment");
         if (_slot.ItemObject == null) return;
         switch (_slot.parent.inventory.type)
         {
@@ -134,13 +133,11 @@ public class Ship : MonoBehaviour
                         case ItemType.Weapon:
                             if (gun1 == null) 
                             {
-                                Debug.Log("adding to gun1");
                                 gun1 = AddEquipment(_slot.ItemObject.prefabToEquip, gun1Position);
                                 weaponSystem.Guns.Add(gun1.gameObject.GetComponent<Gun>());
                             }
                             else if (gun2 == null)
                             {
-                                Debug.Log("adding to gun2");
                                 gun2 = AddEquipment(_slot.ItemObject.prefabToEquip, gun2Position);
                                 weaponSystem.Guns.Add(gun2.gameObject.GetComponent<Gun>());
                             }
