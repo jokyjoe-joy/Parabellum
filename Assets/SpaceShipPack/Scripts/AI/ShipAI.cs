@@ -16,6 +16,17 @@ public class ShipAI : MonoBehaviour
     private Vector3 roamPosition;
     private Ship ship;
     private WeaponSystem weaponSystem;
+    public Transform dropItemTemplatePf;
+    public int itemDropSpawnRadius = 15;
+    [System.Serializable]
+    public struct ItemsToDropOnDeath
+    {
+        public ItemObject item;
+        public float chance;
+    }
+
+    [Tooltip("Chance is a float between 0.0 and 1.0. The higher the number the bigger the chance to drop.")]
+    public ItemsToDropOnDeath[] itemsToDrop;
 
     // Returns random normalized vector
     private Vector3 GetRandomDirection()
@@ -79,6 +90,7 @@ public class ShipAI : MonoBehaviour
         ship = GetComponent<Ship>();
         weaponSystem = GetComponent<WeaponSystem>();
         ship.onTargeted.AddListener(OnTargeted);
+        ship.onDeath.AddListener(OnDeath);
     }
     void Start()
     {
@@ -142,6 +154,19 @@ public class ShipAI : MonoBehaviour
             Ship targetShip = target.GetComponent<Ship>();
             // TODO: When invoking, pass (this ship? as) argument
             if (targetShip != null) targetShip.onTargeted.Invoke();
+        }
+    }
+
+    void OnDeath()
+    {
+        for (int i = 0; i < itemsToDrop.Length; i++)
+        {
+            if (Random.Range(0.0f,1.0f) < itemsToDrop[i].chance)
+            {
+                Vector3 placeToSpawn = (Random.insideUnitSphere * itemDropSpawnRadius) + transform.position;
+                Transform droppedItem = Instantiate(dropItemTemplatePf, placeToSpawn, Quaternion.identity);
+                droppedItem.GetComponent<CollectableToInventory>().item = itemsToDrop[i].item;
+            }
         }
     }
 }

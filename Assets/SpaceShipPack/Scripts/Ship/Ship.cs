@@ -19,6 +19,7 @@ public class Ship : MonoBehaviour
     [HideInInspector] public new Rigidbody rigidbody;
     [HideInInspector] public HealthData healthData;
     [HideInInspector] public UnityEvent onTargeted;
+    [HideInInspector] public UnityEvent onDeath;
 
     private void Awake()
     {
@@ -75,6 +76,8 @@ public class Ship : MonoBehaviour
 
     private void Explode()
     {
+        onDeath.Invoke();
+
         Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
         GameObject explosion = Instantiate(explosionVFX, transform.position, Quaternion.identity);
         explosion.transform.localScale = transform.localScale * explosionScale;
@@ -103,24 +106,5 @@ public class Ship : MonoBehaviour
 
         transform.DetachChildren();
         Destroy(gameObject);
-    }
-}
-
-[System.Serializable]
-public class Attribute
-{
-    [System.NonSerialized] public ShipController parent;
-    public Attributes type;
-    public ModifiableInt value;
-
-    public void SetParent(ShipController _parent)
-    {
-        parent = _parent;
-        value = new ModifiableInt(AttributeModified);
-    }
-
-    public void AttributeModified()
-    {
-        parent.AttributeModified(this);
     }
 }
