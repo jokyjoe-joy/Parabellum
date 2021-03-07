@@ -17,11 +17,13 @@ public class Ship : MonoBehaviour
     public Attribute[] attributes;
     public InventoryObject inventory; 
     public InventoryObject equipment;
-    // TODO: instead of gun1 and gun2 use a Dictionary
-    public Transform gun1;
-    public Transform gun2;
-    public Transform gun1Position;
-    public Transform gun2Position;
+    [System.Serializable]
+    public struct Guns {
+        public Transform positionTransf;
+        public Transform gunObj;
+    }
+    public Guns[] shipGuns;
+    
     [HideInInspector] public WeaponSystem weaponSystem;
     [HideInInspector] public Vector3 currentVelocity;
     [HideInInspector] public new Rigidbody rigidbody; // FIXME: shouldn't be public later on?
@@ -90,19 +92,18 @@ public class Ship : MonoBehaviour
                         case ItemType.Weapon:
                             // TODO: This is not removing the item that is intended to remove.
                             // TODO: should remove from weaponsystem as well?!
-                            if (gun1 != null) 
+                            for (int i = 0; i < shipGuns.Length; i++)
                             {
-                                Destroy(gun1.gameObject);
-                            }
-                            else if (gun2 != null)
-                            {
-                                Destroy(gun2.gameObject);
+                                if (shipGuns[i].gunObj != null)
+                                {
+                                    Destroy(shipGuns[i].gunObj.gameObject);
+                                    break;
+                                }
                             }
                             break;
                         default:
                             break;
                     }
-
                 }
                 break;
             default:
@@ -131,22 +132,19 @@ public class Ship : MonoBehaviour
                     switch (_slot.AllowedItems[0])
                     {
                         case ItemType.Weapon:
-                            if (gun1 == null) 
+                            for (int i = 0; i < shipGuns.Length; i++)
                             {
-                                gun1 = AddEquipment(_slot.ItemObject.prefabToEquip, gun1Position);
-                                weaponSystem.Guns.Add(gun1.gameObject.GetComponent<Gun>());
-                            }
-                            else if (gun2 == null)
-                            {
-                                gun2 = AddEquipment(_slot.ItemObject.prefabToEquip, gun2Position);
-                                weaponSystem.Guns.Add(gun2.gameObject.GetComponent<Gun>());
+                                if (shipGuns[i].gunObj == null)
+                                {
+                                    shipGuns[i].gunObj = AddEquipment(_slot.ItemObject.prefabToEquip, shipGuns[i].positionTransf);
+                                    weaponSystem.Guns.Add(shipGuns[i].gunObj.gameObject.GetComponent<Gun>());
+                                }
                             }
                             break;
                         default:
                             break;
                     }
                 }
-
                 break;
             default:
                 break;
@@ -156,7 +154,7 @@ public class Ship : MonoBehaviour
     private void Update() 
     {
         if (healthData.health <= 0) Explode();
-        // TODO: this is for debug
+        // TODO: alternative save mode/time?
         if (Input.GetKeyDown(KeyCode.F9))
         {
             inventory.Save();
@@ -219,26 +217,22 @@ public class Ship : MonoBehaviour
 
     private void Explode()
     {
-        /* 
-        Checking nearby colliders and adding explosion force to their rigidbodies (if they have)
-        Also adding rigidbodies to children and then explosion force to them
-        Renaming children to SCRAPE, then detaching them, then destroying gameObject
-        */
         Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
-
         GameObject explosion = Instantiate(explosionVFX, transform.position, Quaternion.identity);
         explosion.transform.localScale = transform.localScale * explosionScale;
         Destroy(explosion, 2f);
 
+    
         foreach(Transform child in transform)
         {
+            if (child.gameObject.CompareTag("MainCamera")) continue;
+            
             Rigidbody rb = child.gameObject.AddComponent<Rigidbody>();
             rb.useGravity = false;
             child.gameObject.name = "SCRAP";
-            // Destroy attached tags if there are any.
-            // TODO: Check if "Tag" is in name, and destroy it
-            // or if Tag is not set to default, destroy
-            if (child.gameObject.CompareTag("Enemy")) Destroy(child.gameObject);
+            // If there are any tags attached to the ship, destroy them
+            if (child.gameObject.CompareTag("Enemy") || child.gameObject.name.Contains("Tag")) 
+                Destroy(child.gameObject);
         }
 
         explosionRadius *= transform.localScale.x;
