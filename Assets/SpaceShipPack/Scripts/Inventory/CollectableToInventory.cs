@@ -46,14 +46,14 @@ public class CollectableToInventory : MonoBehaviour
     public void OnTriggerEnter(Collider other)
     {
         // Check if this object has an inventory, if it doesn't: return.
-        Ship ship = other.transform.GetComponent<Ship>();
+        ShipController ship = other.transform.GetComponent<ShipController>();
         if (ship != null)
         {
             inventory = ship.inventory;
         } 
         else if (other.transform.parent != null)
         {
-            ship = other.transform.parent.gameObject.GetComponent<Ship>();
+            ship = other.transform.parent.gameObject.GetComponent<ShipController>();
         }
         if (ship != null)
         {

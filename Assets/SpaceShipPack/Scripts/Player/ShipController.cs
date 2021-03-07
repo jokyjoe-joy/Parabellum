@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
+using System.Collections;
 
 public class ShipController : MonoBehaviour
 {
@@ -19,6 +20,17 @@ public class ShipController : MonoBehaviour
     public GameObject firstPersonCamera;
     public GameObject thirdPersonCamera;
     private SmoothMouseLook smoothMouse;
+    private Vector3 initialCameraRotation;
+    public InventoryObject inventory; 
+    public InventoryObject equipment;
+    public Attribute[] attributes;
+    [System.Serializable]
+    public struct Guns {
+        public Transform positionTransf;
+        public Transform gunObj;
+    }
+    public Guns[] shipGuns;
+
     private void Awake()
     {
         weaponSystem = GetComponent<WeaponSystem>();
@@ -31,14 +43,35 @@ public class ShipController : MonoBehaviour
         cameraShake = Camera.main.GetComponent<CameraShake>();
         healthData.onDamage.AddListener(ShakeCamera);
         smoothMouse  = firstPersonCamera.GetComponent<SmoothMouseLook>();
+        ship = GetComponent<Ship>();
+
+        if (inventory == null) Debug.LogWarning("Player's inventory is null!");
+        if (equipment == null) Debug.LogWarning("Player's equipment is null!");
+    
     }
 
     void Start()
     {
+        // TODO: Get a better method for doing this stuff below
+        // Load only after Start() because in inventorySlot, in UpdateSlot, onAfterUpdate and onBeforeUpdate
+        // don't work right after start (they are null).
+        StartCoroutine(LoadInventories());
+
         // Locking cursor
         Cursor.lockState = CursorLockMode.Locked;
-        ship = GetComponent<Ship>();
         defaultFOV = Camera.main.fieldOfView;
+        initialCameraRotation = Camera.main.transform.localEulerAngles;
+
+        for (int i = 0; i < attributes.Length; i++)
+        {
+            attributes[i].SetParent(this);
+        }
+
+        for (int i = 0; i < equipment.GetSlots.Length; i++)
+        {
+            equipment.GetSlots[i].OnBeforeUpdate += OnRemoveEquipment;
+            equipment.GetSlots[i].OnAfterUpdate += OnAddEquipment;
+        }
     }
 
     void Update()
@@ -67,8 +100,23 @@ public class ShipController : MonoBehaviour
         {
             smoothMouse.enabled = false;
             shouldCheckControls = true;
+            Camera.main.transform.localEulerAngles = initialCameraRotation;
         }
 
+        // TODO: alternative save mode/time?
+        if (Input.GetKeyDown(KeyCode.F9))
+        {
+            inventory.Save();
+            equipment.Save();
+        }
+
+    }
+
+    IEnumerator LoadInventories()
+    {
+        yield return new WaitForSeconds(0.3f);
+        inventory.Load();
+        equipment.Load();
     }
 
     private void CheckShootingControls()
@@ -155,6 +203,104 @@ public class ShipController : MonoBehaviour
         }
     }
 
+    public void OnRemoveEquipment(InventorySlot _slot)
+    {
+        if (_slot.ItemObject == null) return;
+        switch (_slot.parent.inventory.type)
+        {
+            case InterfaceType.Inventory:
+                break;
+            case InterfaceType.Equipment:
+                // Removing attributes that this item was giving the ship.
+                for (int i = 0; i < _slot.item.buffs.Length; i++)
+                {
+                    for (int j = 0; j < attributes.Length; j++)
+                    {
+                        if (attributes[j].type == _slot.item.buffs[i].attribute)
+                            attributes[j].value.RemoveModifier(_slot.item.buffs[i]);
+                    }
+                }
+
+                if (_slot.ItemObject.prefabToEquip != null)
+                {
+                    switch (_slot.AllowedItems[0])
+                    {
+                        case ItemType.Weapon:
+                            // TODO: This is not removing the item that is intended to remove.
+                            for (int i = 0; i < shipGuns.Length; i++)
+                            {
+                                if (shipGuns[i].gunObj != null)
+                                {
+                                    weaponSystem.Guns.Remove(shipGuns[i].gunObj.GetComponent<Gun>());
+                                    Destroy(shipGuns[i].gunObj.gameObject);
+                                    return;
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    
+    public void OnAddEquipment(InventorySlot _slot)
+    {
+        if (_slot.ItemObject == null) return;
+        switch (_slot.parent.inventory.type)
+        {
+            case InterfaceType.Inventory:
+                break;
+            case InterfaceType.Equipment:
+                for (int i = 0; i < _slot.item.buffs.Length; i++)
+                {
+                    for (int j = 0; j < attributes.Length; j++)
+                    {
+                        if (attributes[j].type == _slot.item.buffs[i].attribute)
+                            attributes[j].value.AddModifier(_slot.item.buffs[i]);
+                    }
+                }
+
+                if (_slot.ItemObject.prefabToEquip != null)
+                {
+                    switch (_slot.AllowedItems[0])
+                    {
+                        case ItemType.Weapon:
+                            for (int i = 0; i < shipGuns.Length; i++)
+                            {
+                                if (shipGuns[i].gunObj == null)
+                                {
+                                    shipGuns[i].gunObj = AddEquipment(_slot.ItemObject.prefabToEquip, shipGuns[i].positionTransf);
+                                    weaponSystem.Guns.Add(shipGuns[i].gunObj.gameObject.GetComponent<Gun>());
+                                    return;
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    public Transform AddEquipment(GameObject _equipmentToAdd, Transform _equipmentPosition)
+    {
+        GameObject _equippedEquipment = Instantiate(_equipmentToAdd, _equipmentPosition.position, _equipmentPosition.rotation);
+        _equippedEquipment.transform.SetParent(transform);
+        return _equippedEquipment.transform;
+    }
+    
+    public void AttributeModified(Attribute attribute)
+    {
+        // TODO: this?
+    }
+
     private void AdjustFOVOnSpeed()
     {
         // Dynamic field of view based on speed
@@ -202,5 +348,11 @@ public class ShipController : MonoBehaviour
     private void ShakeCamera()
     {
         cameraShake.shakeDuration = 0.4f;
+    }
+
+    private void OnApplicationQuit()
+    {
+        inventory.Clear();
+        equipment.Clear();
     }
 }
