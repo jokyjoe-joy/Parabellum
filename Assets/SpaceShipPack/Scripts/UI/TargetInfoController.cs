@@ -7,6 +7,7 @@ public class TargetInfoController : MonoBehaviour
 {
     private Text targetName;
     private Text targetHealth;
+    private Text targetDistance;
     private GameObject target;
     private ShipController playerShipController;
 
@@ -14,6 +15,7 @@ public class TargetInfoController : MonoBehaviour
     {
         targetName = transform.Find("targetName").GetComponent<Text>();
         targetHealth = transform.Find("targetHealth").GetComponent<Text>();
+        targetDistance = transform.Find("targetDistance").GetComponent<Text>();
         playerShipController = GameObject.FindGameObjectWithTag("PlayerTag").transform.parent.GetComponent<ShipController>();
     }
 
@@ -26,7 +28,9 @@ public class TargetInfoController : MonoBehaviour
             foreach (Transform child in transform) child.gameObject.SetActive(true);
             targetName.text = target.GetComponent<ShipAI>().nameOfAI;
             HealthData targetHealthData = target.GetComponent<HealthData>();
-            targetHealth.text = Mathf.RoundToInt(targetHealthData.health / targetHealthData.healthMax * 100).ToString() + "%";
+            targetHealth.text = string.Concat(Mathf.RoundToInt(targetHealthData.health / targetHealthData.healthMax * 100).ToString(), "%");
+            targetDistance.text = string.Concat(Mathf.RoundToInt(Vector3.Distance(playerShipController.transform.position, target.transform.position)).ToString(), " m");
+        
         } 
         else 
         {
