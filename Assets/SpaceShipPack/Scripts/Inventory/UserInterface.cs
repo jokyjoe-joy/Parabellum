@@ -149,6 +149,15 @@ public abstract class UserInterface : MonoBehaviour
 
             name.text = slotsOnInterface[obj].ItemObject.itemName;
             description.text = slotsOnInterface[obj].ItemObject.itemDescription;
+
+            // Set etc1 & etc2 texts if weapon to damage and range
+            if (slotsOnInterface[obj].ItemObject.type == ItemType.Weapon)
+            {
+                Text etc1 = currentItemTooltip.transform.Find("etc1").GetComponent<Text>();
+                Text etc2 = currentItemTooltip.transform.Find("etc2").GetComponent<Text>();
+                etc1.text = "Damage: " + slotsOnInterface[obj].ItemObject.prefabToEquip.GetComponent<Gun>().damageAmount.ToString();
+                etc2.text = "Range: " + slotsOnInterface[obj].ItemObject.prefabToEquip.GetComponent<Gun>().maxRange.ToString();
+            }
         }
     }
     public void OnExit(GameObject obj)

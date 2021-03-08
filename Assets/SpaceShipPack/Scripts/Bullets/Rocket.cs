@@ -11,7 +11,6 @@ public class Rocket : MonoBehaviour
     }
     private State state;
     public float moveSpeed = 100f;
-    public int DamageAmount = 10;
     public float distanceToExplode = 1;
     public float explosionRadius = 1;
     public GameObject explosionVFX;
@@ -21,19 +20,21 @@ public class Rocket : MonoBehaviour
     private new Rigidbody rigidbody;
     private bool isLookingForEnemy = true;
     public float timeBeforeChasing = 0.4f;
+    private int damageAmount;
 
 
     private void Awake() {
         rigidbody = GetComponent<Rigidbody>();
     }
 
-    public void Setup(Vector3 shootDir, Vector3 initialVelocity, bool isLookingForEnemy = true)
+    public void Setup(Vector3 shootDir, Vector3 initialVelocity, int damageAmount, bool isLookingForEnemy = true)
     {
         this.shootDir = shootDir;
         transform.localRotation = Quaternion.Euler(90,180,90);
         this.isLookingForEnemy = isLookingForEnemy;
         rigidbody.velocity = initialVelocity;
         Destroy(gameObject, 10f);
+        this.damageAmount = damageAmount;
         
     }
 
@@ -90,7 +91,7 @@ public class Rocket : MonoBehaviour
             {
                 // target hit
                 // FIXME: For some reason, sometimes it doubles the damage?? (hitting multiple colliders as well?)
-                healthData.Damage(DamageAmount);
+                healthData.Damage(damageAmount);
                 // create VFX
                 GameObject explosion = Instantiate(explosionVFX, transform.position, Quaternion.identity);
                 explosion.transform.localScale *= explosionScale * collider.gameObject.transform.localScale.x;

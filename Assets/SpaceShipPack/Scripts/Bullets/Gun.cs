@@ -7,6 +7,8 @@ public class Gun : MonoBehaviour
 {
     public Transform pfBullet;
     public float reloadTime = 5;
+    public int maxRange = 1000;
+    public int damageAmount = 1;
     public bool isGunLoaded = true;
     public bool isGunLoading = false;
     public GameObject shootingVFX;
@@ -40,14 +42,13 @@ public class Gun : MonoBehaviour
             if (bulletController != null)
             {
                 Vector3 aimDir = Camera.main.ScreenPointToRay(Input.mousePosition).direction;
-                bulletController.Setup(transform.forward, aimDir * initialVelocity.sqrMagnitude);
-                //bulletController.Setup(transform.forward, initialVelocity);
+                bulletController.Setup(transform.forward, aimDir * initialVelocity.sqrMagnitude, maxRange, damageAmount);
             }
 
             Rocket rocketController = bulletTransform.GetComponent<Rocket>();
             if (rocketController != null)
             {
-                rocketController.Setup(transform.forward, initialVelocity, isLookingForEnemy);
+                rocketController.Setup(transform.forward, initialVelocity, damageAmount, isLookingForEnemy);
             }
         }
     }
