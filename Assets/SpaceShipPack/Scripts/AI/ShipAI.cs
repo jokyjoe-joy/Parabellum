@@ -10,10 +10,12 @@ public class ShipAI : MonoBehaviour
         ChaseTarget
     }
     private State state;
-    public float DampingOnTurning = 3f;
+    public float dampingOnTurning = 3f;
     public float DistanceFromMoveTarget = 50f;
+    public float shootingAccuracy = 0.6f;
     private Vector3 startingPosition;
     private Vector3 roamPosition;
+    private GameObject currentTarget;
     private Ship ship;
     private WeaponSystem weaponSystem;
     public Transform dropItemTemplatePf;
@@ -27,63 +29,7 @@ public class ShipAI : MonoBehaviour
 
     [Tooltip("Chance is a float between 0.0 and 1.0. The higher the number the bigger the chance to drop.")]
     public ItemsToDropOnDeath[] itemsToDrop;
-
-    // Returns random normalized vector
-    private Vector3 GetRandomDirection()
-    {
-        return new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f)).normalized;
-    }
-
-    private Vector3 GetRoamingPosition()
-    {
-        return startingPosition + GetRandomDirection() * Random.Range(100f, 500f);
-    }
-
-    private void MoveTo(Vector3 target)
-    {
-        /* 
-        // TODO: Finish this pseudo-code :)
-        float neededDistanceFromTarget;
-        bool targetReached;
-
-        when looking at target { // Quaternion.Angle(transform.rotation, rotation) < 1
-            move towards it;
-            if (velocity.magnitude >= distanceFromTarget) { // ????
-                slow down;
-            }
-
-        } else {
-            look at target;
-        }
-        
-         */
-        // Look at target
-        var rotation = Quaternion.LookRotation (target - transform.position);
-        transform.rotation = Quaternion.Slerp (transform.rotation, rotation, Time.deltaTime * DampingOnTurning);
-        // If looking at target, do this:
-        if (Quaternion.Angle(transform.rotation, rotation) < 5)
-        {
-            // Then move towards target
-            Vector3 vectorTowardsTarget = (target - transform.position);
-            if (vectorTowardsTarget.magnitude >= 1)
-            {
-                ship.ThrustForward();
-            } 
-            else
-            {
-                // Stopping.
-                ship.rigidbody.velocity = new Vector3(0,0,0);
-            }
-        }
-        else
-        {
-            if (ship.rigidbody.velocity.magnitude > 20)
-            {
-                // Stopping.
-                ship.rigidbody.velocity = new Vector3(0,0,0);
-            }
-        }
-    }
+    private int shootingRange;
 
     void Awake()
     {
@@ -91,15 +37,23 @@ public class ShipAI : MonoBehaviour
         weaponSystem = GetComponent<WeaponSystem>();
         ship.onTargeted.AddListener(OnTargeted);
         ship.onDeath.AddListener(OnDeath);
+
+        // Set shooting range to the range of the gun with the smallest range.
+        shootingRange = 9999;
+        for (int i = 0; i < weaponSystem.Guns.Count; i++)
+        {
+            if (weaponSystem.Guns[i].maxRange < shootingRange) shootingRange = weaponSystem.Guns[i].maxRange;
+        }
     }
     void Start()
     {
-        startingPosition = transform.position;
-        roamPosition = GetRoamingPosition();
+        roamPosition = AIMovement.GetRoamingPosition(transform.position);
     }
 
     void OnTargeted() 
     {
+        // TODO: set current target to the one that has targeted this ship
+        currentTarget = GameObject.FindGameObjectWithTag("PlayerTag").transform.parent.gameObject;
         state = State.ChaseTarget;
     }
 
@@ -109,13 +63,13 @@ public class ShipAI : MonoBehaviour
         {
             default:
             case State.Roaming:
-                MoveTo(roamPosition);
+                AIMovement.MoveTo(roamPosition, ship, dampingOnTurning);
                 Debug.DrawLine(transform.position, roamPosition, Color.green);
                 float reachedPositionDistance = 10f;
                 if (Vector3.Distance(transform.position, roamPosition) < reachedPositionDistance) 
                 {
                     // Reached roam position, thus getting new roam position
-                    roamPosition = GetRoamingPosition();
+                    roamPosition = AIMovement.GetRoamingPosition(transform.position);
                 }
                 
                 GameObject player = GameObject.FindGameObjectWithTag("PlayerTag");
@@ -125,20 +79,23 @@ public class ShipAI : MonoBehaviour
                 // Look at player
                 // If within shootingRange of player, stop and shoot at it
                 // Otherwise move towards player
-                player = GameObject.FindGameObjectWithTag("PlayerTag");
-                var rotation = Quaternion.LookRotation (player.transform.position - transform.position);
-                transform.rotation = Quaternion.Slerp (transform.rotation, rotation, Time.deltaTime * DampingOnTurning);
                 
-                float shootingRange = 200f;
-                if (Vector3.Distance(player.transform.position, transform.position) < shootingRange) 
+                // TODO: Think of a better way to calculate accuracy, also use player's speed in calculation.
+                // Choose a random position around the player where AI will shoot.
+                Vector3 targetPosition = Random.insideUnitSphere * (35 * (1 / shootingAccuracy)) + currentTarget.transform.position;
+                
+                var rotation = Quaternion.LookRotation (targetPosition - transform.position);
+                transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * dampingOnTurning);
+                
+                if (Vector3.Distance(targetPosition, transform.position) < shootingRange) 
                 {
                     ship.Stabilise();
                     weaponSystem.ShootGuns(ship.currentVelocity);
                 } 
                 else 
                 {
-                    Debug.DrawLine(transform.position, player.transform.position, Color.green);
-                    MoveTo(player.transform.position);
+                    Debug.DrawLine(transform.position, targetPosition, Color.green);
+                    AIMovement.MoveTo(targetPosition, ship, dampingOnTurning);
                 }
                 break;
         }
@@ -154,6 +111,7 @@ public class ShipAI : MonoBehaviour
             Ship targetShip = target.GetComponent<Ship>();
             // TODO: When invoking, pass (this ship? as) argument
             if (targetShip != null) targetShip.onTargeted.Invoke();
+            currentTarget = target.gameObject;
         }
     }
 
