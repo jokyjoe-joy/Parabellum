@@ -8,9 +8,10 @@ public class WeaponSystem : MonoBehaviour
     public List<string> raycastWhitelist = new List<string>();
     public int raycastSphereRadius = 12;
     private bool isLookingForEnemy = false;
-    private RaycastHit hit;
+    [HideInInspector] public RaycastHit hit;
 
-    private void Awake() {
+    private void Awake()
+    {
         // In case this is a player ship, attack AI
         ShipAI shipAI = GetComponent<ShipAI>();
         if (shipAI == null) isLookingForEnemy = true;
@@ -31,19 +32,16 @@ public class WeaponSystem : MonoBehaviour
         Vector3 p1 = transform.position;
         Vector3 p2 = transform.TransformDirection(Vector3.forward);
         
-
-        // TODO: In UI switch crosshair color when enemy with EnemyTag is raycasted!!
-
         // Check if there is any object in front of the ship and gun.LookAt() at that position.
         // If there is no object there, reset back to initialRotation.
         if (Physics.SphereCast(p1, raycastSphereRadius, p2, out hit, Mathf.Infinity))
         {
-
             // Only look at object if it is in whitelist.
             foreach (string whitename in raycastWhitelist)
             {
                 if (hit.transform.name.Contains(whitename))
                 {
+                    // NOTE: On bullets use Ignore Raycast layer!
                     Debug.DrawRay(p1, p2 * hit.distance, Color.yellow);
                     foreach (Gun gun in Guns)
                     {
