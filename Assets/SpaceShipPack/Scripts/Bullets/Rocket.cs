@@ -90,7 +90,6 @@ public class Rocket : MonoBehaviour
             if (healthData != null)
             {
                 // target hit
-                // FIXME: For some reason, sometimes it doubles the damage?? (hitting multiple colliders as well?)
                 healthData.Damage(damageAmount);
                 // create VFX
                 GameObject explosion = Instantiate(explosionVFX, transform.position, Quaternion.identity);

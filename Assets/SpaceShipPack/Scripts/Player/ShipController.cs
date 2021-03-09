@@ -118,7 +118,7 @@ public class ShipController : MonoBehaviour
             
             if (target != null)
             {
-                // FIXME: isOffScreen doesn't work properly! Sometimes when object is offScreen
+                // TODO: isOffScreen doesn't work properly! Sometimes when object is offScreen
                 // it still returns false
                 bool isOffScreen = jokyUtilities.checkIfObjectIsOffScreen(target.transform.position);
                 // In case Player doesn't have a target, try to target the closest enemy

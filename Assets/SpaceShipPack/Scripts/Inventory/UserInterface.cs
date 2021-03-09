@@ -14,7 +14,7 @@ public abstract class UserInterface : MonoBehaviour
     private ShipController playerShipController;
     public GameObject itemTooltipPrefab;
     GameObject currentItemTooltip;
-    public float tooltipOffsetX = 100;
+    public float tooltipOffsetX = 150;
 
     private void Awake()
     {
@@ -112,13 +112,12 @@ public abstract class UserInterface : MonoBehaviour
         // Setting children active based on isInventoryActive
         foreach (Transform child in transform)
             child.gameObject.SetActive(isInventoryActive);
-        // FIXME: this is not the way
-        if (this.name == "Inventory")
+
+        if (this.GetComponent<DynamicInterface>() != null)
         {
             foreach (Transform child in itemSlotContainer)
                 child.gameObject.SetActive(isInventoryActive);
             itemSlotTemplate.gameObject.SetActive(false);
-
         }
 
         // Enable or disable player ship movement

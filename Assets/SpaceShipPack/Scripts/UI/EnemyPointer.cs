@@ -27,7 +27,11 @@ public class EnemyPointer : MonoBehaviour
 
         // If target is not off-screen, then position pointer on target,
         // while scaling it according the distance between the camera and the target.
-        if (isOffScreen) pointerRectTransform.localScale = new Vector3(0,0,0);
+        if (isOffScreen) 
+        {
+            // TODO: Offscreen indicator
+            pointerRectTransform.localScale = new Vector3(0,0,0);
+        }
         else
         {
             float x = (this.targetPosition - Camera.main.transform.position).sqrMagnitude; // usually returns around 300000 - 500000
