@@ -86,11 +86,9 @@ public abstract class UserInterface : MonoBehaviour
 
     void Update()
     {
-        // TODO: This shouldn't be here
         if (Input.GetKeyDown("i")) {
             SwitchInventoryVisibleInvisible();
         }
-        
     }
 
     public void SwitchInventoryVisibleInvisible()

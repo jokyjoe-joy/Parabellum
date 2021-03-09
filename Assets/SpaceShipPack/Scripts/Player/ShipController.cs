@@ -17,8 +17,6 @@ public class ShipController : MonoBehaviour
     private HealthData healthData;
     [HideInInspector] public GameObject currentTarget = null;
     [HideInInspector] public bool shouldCheckControls = true;
-    public GameObject firstPersonCamera;
-    public GameObject thirdPersonCamera;
     private SmoothMouseLook smoothMouse;
     private Vector3 initialCameraRotation;
     public InventoryObject inventory; 
@@ -42,7 +40,7 @@ public class ShipController : MonoBehaviour
         vignetteDefaultValue = vignette.intensity.value;
         cameraShake = Camera.main.GetComponent<CameraShake>();
         healthData.onDamage.AddListener(ShakeCamera);
-        smoothMouse  = firstPersonCamera.GetComponent<SmoothMouseLook>();
+        smoothMouse  = Camera.main.GetComponent<SmoothMouseLook>();
         ship = GetComponent<Ship>();
 
         if (inventory == null) Debug.LogWarning("Player's inventory is null!");
@@ -76,27 +74,12 @@ public class ShipController : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown("v"))
-        {
-            // Switch between third and first person camera
-            if (Camera.main.name == firstPersonCamera.name)
-            {
-                Camera.main.gameObject.SetActive(false);
-                thirdPersonCamera.SetActive(true);
-            }
-            else
-            {
-                Camera.main.gameObject.SetActive(false);
-                firstPersonCamera.SetActive(true);
-            }
-        }
-
-        if (Input.GetKey(KeyCode.LeftAlt) && Camera.main.name == firstPersonCamera.name)
+        if (Input.GetKey(KeyCode.LeftAlt))
         {
             smoothMouse.enabled = true;
             shouldCheckControls = false;
         }
-        if (Input.GetKeyUp(KeyCode.LeftAlt) && Camera.main.name == firstPersonCamera.name)
+        if (Input.GetKeyUp(KeyCode.LeftAlt))
         {
             smoothMouse.enabled = false;
             shouldCheckControls = true;
@@ -109,7 +92,6 @@ public class ShipController : MonoBehaviour
             inventory.Save();
             equipment.Save();
         }
-
     }
 
     IEnumerator LoadInventories()
