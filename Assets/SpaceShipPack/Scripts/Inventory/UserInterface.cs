@@ -14,17 +14,14 @@ public abstract class UserInterface : MonoBehaviour
     private ShipController playerShipController;
     public GameObject itemTooltipPrefab;
     GameObject currentItemTooltip;
+    public float tooltipOffsetX = 100;
 
     private void Awake()
     {
         itemSlotContainer = transform.Find("itemSlotContainer");
-        // FIXME: This is not the way
-        if (this.name == "Inventory") itemSlotTemplate = itemSlotContainer.Find("itemSlotTemplate");
+
         // Deactivating inventory UI if active
-        foreach (Transform child in transform) 
-        {
-            child.gameObject.SetActive(false);
-        }
+        foreach (Transform child in transform) child.gameObject.SetActive(false);
         isInventoryActive = false;
         playerShipController = GameObject.FindGameObjectWithTag("PlayerTag").transform.parent.GetComponent<ShipController>();
     
@@ -32,6 +29,26 @@ public abstract class UserInterface : MonoBehaviour
         {
             inventory.GetSlots[i].parent = this;
             inventory.GetSlots[i].OnAfterUpdate += OnSlotUpdate;
+        }
+
+        // Check for setup errors
+        if (this.GetComponent<DynamicInterface>() != null) 
+        {
+            itemSlotTemplate = itemSlotContainer.Find("itemSlotTemplate");
+            Button slotButton = itemSlotTemplate.GetComponent<Button>();
+            if (slotButton.colors.normalColor == slotButton.colors.highlightedColor)
+                Debug.LogWarning(string.Concat(slotButton.gameObject.name, "'s button's normal color and highlighted color are the same. Slot highlighting on cursor enter may not work as intended."));
+        }
+
+        StaticInterface IStatic = this.GetComponent<StaticInterface>();
+        if (IStatic != null)
+        {
+            foreach (GameObject slot in IStatic.slots)
+            {
+                Button slotButton = slot.GetComponent<Button>();
+                if (slotButton.colors.normalColor == slotButton.colors.highlightedColor)
+                    Debug.LogWarning(string.Concat(slotButton.gameObject.name, "'s button's normal color and highlighted color are the same. Slot highlighting on cursor enter may not work as intended."));
+            }
         }
     }
 
@@ -84,6 +101,7 @@ public abstract class UserInterface : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             isInventoryActive = false;
+            if (currentItemTooltip != null) Destroy(currentItemTooltip);
         } 
         else 
         {
@@ -91,8 +109,6 @@ public abstract class UserInterface : MonoBehaviour
             Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = true;
             isInventoryActive = true;
-            // TODO: is the funtion below doing anything?
-            slotsOnInterface.UpdateSlotDisplay();
         }
 
         // Setting children active based on isInventoryActive
@@ -127,16 +143,21 @@ public abstract class UserInterface : MonoBehaviour
     {
         MouseData.slotHoveredOver = obj;
 
+        Image objImage = obj.GetComponent<Image>();
+        Button objButton = obj.GetComponent<Button>();
+        objImage.color = objButton.colors.highlightedColor;
+
+
         // If there is an item in the slot, display a UI tooltip for it.
         if (slotsOnInterface[obj].ItemObject != null && currentItemTooltip == null)
         {
-            // Put the tooltip a little bit above cursor.
+            // Put the tooltip a little bit next to the cursor, so you can see the selected slot.
             Vector3 positionToInstantiate = obj.transform.position;
-            positionToInstantiate.x += 100;
+            positionToInstantiate.x += tooltipOffsetX;
 
-            // Instantiate tooltip and set text and description accordingly.
             currentItemTooltip = Instantiate(itemTooltipPrefab, positionToInstantiate, Quaternion.identity);
-            currentItemTooltip.transform.SetParent(transform.parent);
+            // Need to be transform.parent, so that it is over other interface
+            currentItemTooltip.transform.SetParent(transform.parent); 
 
             if (!currentItemTooltip.GetComponent<RectTransform>().IsFullyVisibleFrom(Camera.main))
             {
@@ -162,10 +183,14 @@ public abstract class UserInterface : MonoBehaviour
     }
     public void OnExit(GameObject obj)
     {
-        // FIXME: Can't select two items after each other.
         MouseData.slotHoveredOver = null;
-        // If there is a tooltip instantiated, destroy it.
+        Image objImage = obj.GetComponent<Image>();
+        Button objButton = obj.GetComponent<Button>();
+        objImage.color = objButton.colors.normalColor;
+
         if (currentItemTooltip != null) Destroy(currentItemTooltip);
+        // Need to set it to null, as without it you can't select two items right after each other.
+        currentItemTooltip = null;
     }
 
     public void OnEnterInterface(GameObject obj)
@@ -228,16 +253,6 @@ public static class MouseData
     public static UserInterface interfaceMouseIsOver;
     public static GameObject tempItemBeingDragged;
     public static GameObject slotHoveredOver;
-}
-
-public static class ExtensionMethods
-{
-    public static void UpdateSlotDisplay(this Dictionary<GameObject, InventorySlot> _slotsOnInterface)
-    {
-        foreach (KeyValuePair<GameObject, InventorySlot> _slot in _slotsOnInterface)
-        {
-        }
-    }
 }
  
 public static class RendererExtensions

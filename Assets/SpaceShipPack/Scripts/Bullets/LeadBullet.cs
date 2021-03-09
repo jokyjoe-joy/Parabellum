@@ -27,6 +27,7 @@ public class LeadBullet : MonoBehaviour
         {
             if (hit.transform.GetComponent<HealthData>() != null)
             {
+                // TODO: Wait as much so that the damage is done when the bullet is there at the ship.
                 // Wait a little bit so that the route of the bullet looks realistic
                 WaitSeconds(0.5f);
                 HealthData healthData = hit.transform.GetComponent<HealthData>();

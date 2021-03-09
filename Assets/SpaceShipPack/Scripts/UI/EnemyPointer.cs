@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class EnemyPointer : MonoBehaviour
 {
-    public float minSize = 0.1f;
-    public float maxSize = 0.3f;
+    public float minSize = 0.2f;
+    public float maxSize = 0.6f;
     private Vector3 targetPosition;
     private RectTransform pointerRectTransform;
 
@@ -30,9 +30,9 @@ public class EnemyPointer : MonoBehaviour
         if (isOffScreen) pointerRectTransform.localScale = new Vector3(0,0,0);
         else
         {
-            // TODO: Create some fancy fast function for this
-            float x = (this.targetPosition - Camera.main.transform.position).sqrMagnitude;
-            float y = 1000.0f;
+            float x = (this.targetPosition - Camera.main.transform.position).sqrMagnitude; // usually returns around 300000 - 500000
+            x *= maxSize;
+            float y = minSize * 300000.0f;
             float sizeByDistance = y / x;
             float size = Mathf.Clamp(sizeByDistance, minSize, maxSize);
             pointerRectTransform.localScale = new Vector3(size,size,size);
