@@ -227,6 +227,7 @@ public abstract class UserInterface : MonoBehaviour
         Destroy(MouseData.tempItemBeingDragged);
         if (MouseData.interfaceMouseIsOver == null)
         {
+            // TODO: Add a confirmation alert if the user really wants to remove the given item.
             slotsOnInterface[obj].RemoveItem();
             return;
         }

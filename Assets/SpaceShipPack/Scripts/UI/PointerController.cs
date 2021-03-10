@@ -33,6 +33,7 @@ public class PointerController : MonoBehaviour
         // create pointers for each one of them
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         foreach(GameObject enemy in enemies)
+            // TODO: This whole file looks a little bit messy (especially setPointer()), so take a look at it.
             setPointer(enemy, shipPointerSprite, pointerIfTargeted: targetedShipPointerSprite, pointerColor: Color.red);
         
         GameObject[] collectables = GameObject.FindGameObjectsWithTag(collectableTag);
@@ -43,9 +44,7 @@ public class PointerController : MonoBehaviour
             Color pointerColor;
             if (collectableInv.item.data.buffs.Length > 0) pointerColor = Color.green;
             else pointerColor = Color.yellow;
-            
-            setPointer(collectable, itemPointerSprite, pointerColor);
-            
+            setPointer(collectable, itemPointerSprite, pointerColor);    
         }
         
         // Destroy pointers that no longer exist.
@@ -88,6 +87,5 @@ public class PointerController : MonoBehaviour
         if (currentTarget != null && currentTarget.transform.Find("EnemyTag").gameObject.GetInstanceID() == objectToPointAtID)
             pointer.isTargetedSprite = true;
         else pointer.isTargetedSprite = false;
-
     }
 }

@@ -148,7 +148,6 @@ public class Inventory
     {
         for (int i = 0; i < Slots.Length; i++)
         {
-            // TODO: Rather use RemoveItem()? 
             Slots[i].UpdateSlot(new Item(), 0);
         }
     }
