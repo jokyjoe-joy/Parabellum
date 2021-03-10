@@ -118,12 +118,10 @@ public class ShipController : MonoBehaviour
             
             if (target != null)
             {
-                // TODO: isOffScreen doesn't work properly! Sometimes when object is offScreen
-                // it still returns false
-                bool isOffScreen = jokyUtilities.checkIfObjectIsOffScreen(target.transform.position);
+                bool isOnScreen = jokyUtilities.checkIfObjectIsOnScreen(target);
                 // In case Player doesn't have a target, try to target the closest enemy
                 // which is on-screen.
-                if (currentTarget == null && !isOffScreen)
+                if (currentTarget == null && isOnScreen)
                 {
                     // Invoke onTargeted event on the targeted ship
                     // Below parent is needed, as enemyTag is its child gameobject

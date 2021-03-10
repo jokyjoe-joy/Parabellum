@@ -10,6 +10,7 @@ public class PointerController : MonoBehaviour
     public Sprite shipPointerSprite;
     public Sprite targetedShipPointerSprite;
     public Sprite itemPointerSprite;
+    public Sprite arrowSprite;
     private GameObject currentTarget;
     private ShipController playerShipController;
     public string collectableTag = "Collectable";
@@ -71,6 +72,11 @@ public class PointerController : MonoBehaviour
             pointer = pointerObj.GetComponent<EnemyPointer>();
             pointerObj.transform.SetParent(transform);
             pointers.Add(objectToPointAtID, pointer);
+
+            // set up pointer arrow sprite
+            pointer.arrowSprite = arrowSprite;
+            pointer.basicSprite = basicPointer;
+            pointer.targetedSprite = targetedShipPointerSprite;
         }
 
         pointer.SetTarget(objectToPointAt.transform.position);
@@ -80,8 +86,8 @@ public class PointerController : MonoBehaviour
         // NOTE: as currentTarget, shipController has the gameobject with Ship,
         // but here we save the instanceID of the EnemyTag child
         if (currentTarget != null && currentTarget.transform.Find("EnemyTag").gameObject.GetInstanceID() == objectToPointAtID)
-            pointerImage.sprite = pointerIfTargeted;
-        else
-            pointerImage.sprite = basicPointer;
+            pointer.isTargetedSprite = true;
+        else pointer.isTargetedSprite = false;
+
     }
 }

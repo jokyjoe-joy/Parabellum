@@ -34,10 +34,39 @@ public class jokyUtilities : MonoBehaviour
         return bestTarget;
     }
 
-    public static bool checkIfObjectIsOffScreen(Vector3 targetPosition)
+    /// <summary>
+    /// Returns whether the given object is visible by the main camera.
+    /// </summary>
+    /// <param name="target">gameObject of the given target</param>
+    public static bool checkIfObjectIsOnScreen(GameObject target)
     {
-        Vector3 fromPosition = Camera.main.transform.position;
-        Vector3 targetPositionViewPoint = Camera.main.WorldToViewportPoint(targetPosition);
-        return targetPositionViewPoint.x >= 0 && targetPositionViewPoint.x <= 1 && targetPositionViewPoint.y >= 0 && targetPositionViewPoint.y <= 1 && targetPositionViewPoint.z <= 0;
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(target.transform.position);
+        if (screenPos.z > 0 && screenPos.x > 0 && screenPos.x < Screen.width && screenPos.y > 0 && screenPos.y < Screen.height)
+            return true;
+        else return false;
     }
+
+    /// <summary>
+    /// Returns whether the given object is visible by the main camera.
+    /// </summary>
+    /// <param name="target">Transform of the given target</param>
+    public static bool checkIfObjectIsOnScreen(Transform target)
+    {
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(target.position);
+        if (screenPos.z > 0 && screenPos.x > 0 && screenPos.x < Screen.width && screenPos.y > 0 && screenPos.y < Screen.height)
+            return true;
+        else return false;
+    }
+
+    /// <summary>
+    /// Returns whether the given object is visible by the main camera.
+    /// </summary>
+    /// <param name="screenPos">Screen position of the given target</param>
+    public static bool checkIfObjectIsOnScreen(Vector3 screenPos)
+    {
+        if (screenPos.z > 0 && screenPos.x > 0 && screenPos.x < Screen.width && screenPos.y > 0 && screenPos.y < Screen.height)
+            return true;
+        else return false;
+    }
+
 }
