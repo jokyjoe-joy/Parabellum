@@ -12,7 +12,8 @@ public class LeadBullet : MonoBehaviour
     public GameObject explosionVFX;
     public float explosionScale = 1;
 
-    private void Awake() {
+    private void Awake()
+    {
         rigidbody = GetComponent<Rigidbody>();
     }
     public void Setup(Vector3 shootDir, Vector3 initialVelocity, int maxRange, int damageAmount)

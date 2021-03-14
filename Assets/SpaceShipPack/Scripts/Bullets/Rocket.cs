@@ -2,14 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class Rocket : MonoBehaviour
 {
     private enum State {
         Startup,
         GoingForward,
-        ChaseTarget
+        ChaseTarget,
+        Explosion
     }
     private State state;
+    public float shootSFXMinDistance = 2.0f;
+    public float explosionSFXMinDistance = 10.0f;
     public float moveSpeed = 100f;
     public float distanceToExplode = 1;
     public float explosionRadius = 1;
@@ -21,9 +25,18 @@ public class Rocket : MonoBehaviour
     private bool isLookingForEnemy = true;
     public float timeBeforeChasing = 0.4f;
     private int damageAmount;
+    private AudioSource audioSource;
+    public AudioClip audioOnShoot;
+    public AudioClip audioOnExplosion;
 
-
-    private void Awake() {
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+        audioSource.loop = true;
+        audioSource.clip = audioOnShoot;
+        audioSource.spatialBlend = 1.0f;
+        audioSource.minDistance = shootSFXMinDistance;
+        audioSource.maxDistance = 1000.0f;
         rigidbody = GetComponent<Rigidbody>();
     }
 
@@ -35,11 +48,12 @@ public class Rocket : MonoBehaviour
         rigidbody.velocity = initialVelocity;
         Destroy(gameObject, 10f);
         this.damageAmount = damageAmount;
-        
+        audioSource.Play();
     }
 
     private void FixedUpdate()
     {
+        if (rigidbody == null) return;
         switch (state) {
             default:
             case State.Startup:
@@ -94,8 +108,16 @@ public class Rocket : MonoBehaviour
                 // create VFX
                 GameObject explosion = Instantiate(explosionVFX, transform.position, Quaternion.identity);
                 explosion.transform.localScale *= explosionScale * collider.gameObject.transform.localScale.x;
+                // SFX
+                audioSource.Stop();
+                audioSource.clip = null;
+                audioSource.minDistance = explosionSFXMinDistance;
+                audioSource.maxDistance = 750.0f;
+                audioSource.PlayOneShot(audioOnExplosion);
                 Destroy(explosion, 2f);
-                Destroy(gameObject);
+                if (rigidbody != null) Destroy(rigidbody); // stopping movement
+                gameObject.transform.localScale = new Vector3(0,0,0); // hiding object, so SFX plays well
+                Destroy(gameObject, 5f);
             }
         }
     }

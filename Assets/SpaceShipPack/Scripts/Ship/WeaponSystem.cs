@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class WeaponSystem : MonoBehaviour
 {
     public List<Gun> Guns = new List<Gun>();
@@ -9,12 +10,17 @@ public class WeaponSystem : MonoBehaviour
     public int raycastSphereRadius = 12;
     private bool isLookingForEnemy = false;
     [HideInInspector] public RaycastHit hit;
+    private AudioSource audioSource;
 
     private void Awake()
     {
         // In case this is a player ship, attack AI
         ShipAI shipAI = GetComponent<ShipAI>();
         if (shipAI == null) isLookingForEnemy = true;
+        audioSource = GetComponent<AudioSource>();
+        audioSource.spatialBlend = 1.0f;
+        audioSource.minDistance = 5.0f;
+        audioSource.maxDistance = 500.0f;
 
         // add default blacklists
         raycastWhitelist.Add("enemy");
@@ -63,11 +69,22 @@ public class WeaponSystem : MonoBehaviour
     public void ShootGuns(Vector3 initialVelocity)
     {   
         // Shooting, then reloading
+        bool alreadyPlayedSFX = false;
         foreach (Gun gun in Guns)
         {
             if (gun == null) continue;
-            gun.Shoot(initialVelocity, isLookingForEnemy);
-            StartCoroutine(gun.Reload());
+            bool successfulShoot = gun.Shoot(initialVelocity, isLookingForEnemy);
+            if (successfulShoot)
+            {
+                // TODO: Play audio if there are two different guns set up (with delay maybe?)
+                // Only playing audio once, so SFX won't sound off.
+                if (!alreadyPlayedSFX)
+                {
+                    audioSource.PlayOneShot(gun.audioOnShoot);
+                    alreadyPlayedSFX = true;
+                }
+                StartCoroutine(gun.Reload());
+            }
         }
     }
 }

@@ -14,12 +14,17 @@ public class Gun : MonoBehaviour
     public GameObject shootingVFX;
     public float shootingVFXScale = 1;
     public Vector3 initialRotation;
+    public AudioClip audioOnShoot;
     private void Start()
     {
         initialRotation = transform.localEulerAngles;
     }
 
-    public void Shoot(Vector3 initialVelocity, bool isLookingForEnemy=true)
+    /// <summary>
+    /// Shoots its own bullet.
+    /// </summary>
+    /// <returns>True if bullet was shot, false if it was not.</returns>
+    public bool Shoot(Vector3 initialVelocity, bool isLookingForEnemy=true)
     {
         if (initialVelocity == null) initialVelocity = new Vector3(0,0,0);
         // Only shoot if gun is loaded
@@ -50,11 +55,16 @@ public class Gun : MonoBehaviour
             {
                 rocketController.Setup(transform.forward, initialVelocity, damageAmount, isLookingForEnemy);
             }
+
+            return true;
         }
+        else return false;
     }
 
-    public IEnumerator Reload() {
-        if (!isGunLoading) {
+    public IEnumerator Reload()
+    {
+        if (!isGunLoading)
+        {
             isGunLoading = true;
             yield return new WaitForSeconds(reloadTime);
             isGunLoaded = true;

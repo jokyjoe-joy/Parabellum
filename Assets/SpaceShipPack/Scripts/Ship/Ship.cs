@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+[RequireComponent(typeof(AudioSource))]
 public class Ship : MonoBehaviour
 {
     public float forwardSpeed = 10f;
@@ -14,18 +15,24 @@ public class Ship : MonoBehaviour
     public float explosionPower = 100;
     public float explosionRadius = 20;
     public float explosionScale = 1;
+    public AudioClip explosionSFX;
     [HideInInspector] public WeaponSystem weaponSystem;
     [HideInInspector] public Vector3 currentVelocity;
     [HideInInspector] public new Rigidbody rigidbody;
     [HideInInspector] public HealthData healthData;
     [HideInInspector] public UnityEvent onTargeted;
     [HideInInspector] public UnityEvent onDeath;
+    private AudioSource audioSource;
 
     private void Awake()
     {
         healthData = GetComponent<HealthData>();
         rigidbody = GetComponent<Rigidbody>();
         weaponSystem = GetComponent<WeaponSystem>();
+        audioSource = GetComponent<AudioSource>();
+        audioSource.spatialBlend = 1.0f;
+        audioSource.minDistance = 50.0f;
+        audioSource.maxDistance = 500.0f;
     }
     
     private void Update() 
@@ -77,6 +84,10 @@ public class Ship : MonoBehaviour
     private void Explode()
     {
         onDeath.Invoke();
+
+        // FIXME: Doesn't play as gameObject is destroyed, however if you don't destroy it, then
+        // AI will keep spawning items (to drop)
+        audioSource.PlayOneShot(explosionSFX);
 
         Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
         GameObject explosion = Instantiate(explosionVFX, transform.position, Quaternion.identity);
